@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "O+ybeuxBmVY=",
+  "dgSpecHash": "5KFwDc61o9s=",
   "success": true,
   "projectFilePath": "E:\\Project\\repo\\EcommerceApp\\EcommerceApp.csproj",
   "expectedPackageFiles": [
@@ -8,6 +8,7 @@
     "C:\\Users\\PQ\\.nuget\\packages\\azure.identity\\1.14.2\\azure.identity.1.14.2.nupkg.sha512",
     "C:\\Users\\PQ\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\PQ\\.nuget\\packages\\microsoft.aspnetcore.identity.entityframeworkcore\\10.0.5\\microsoft.aspnetcore.identity.entityframeworkcore.10.0.5.nupkg.sha512",
+    "C:\\Users\\PQ\\.nuget\\packages\\microsoft.aspnetcore.identity.ui\\10.0.5\\microsoft.aspnetcore.identity.ui.10.0.5.nupkg.sha512",
     "C:\\Users\\PQ\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\8.0.0\\microsoft.bcl.asyncinterfaces.8.0.0.nupkg.sha512",
     "C:\\Users\\PQ\\.nuget\\packages\\microsoft.bcl.cryptography\\9.0.4\\microsoft.bcl.cryptography.9.0.4.nupkg.sha512",
     "C:\\Users\\PQ\\.nuget\\packages\\microsoft.build.framework\\18.0.2\\microsoft.build.framework.18.0.2.nupkg.sha512",
@@ -27,6 +28,7 @@
     "C:\\Users\\PQ\\.nuget\\packages\\microsoft.entityframeworkcore.sqlserver\\10.0.5\\microsoft.entityframeworkcore.sqlserver.10.0.5.nupkg.sha512",
     "C:\\Users\\PQ\\.nuget\\packages\\microsoft.entityframeworkcore.tools\\10.0.5\\microsoft.entityframeworkcore.tools.10.0.5.nupkg.sha512",
     "C:\\Users\\PQ\\.nuget\\packages\\microsoft.extensions.dependencymodel\\10.0.5\\microsoft.extensions.dependencymodel.10.0.5.nupkg.sha512",
+    "C:\\Users\\PQ\\.nuget\\packages\\microsoft.extensions.fileproviders.embedded\\10.0.5\\microsoft.extensions.fileproviders.embedded.10.0.5.nupkg.sha512",
     "C:\\Users\\PQ\\.nuget\\packages\\microsoft.identity.client\\4.73.1\\microsoft.identity.client.4.73.1.nupkg.sha512",
     "C:\\Users\\PQ\\.nuget\\packages\\microsoft.identity.client.extensions.msal\\4.73.1\\microsoft.identity.client.extensions.msal.4.73.1.nupkg.sha512",
     "C:\\Users\\PQ\\.nuget\\packages\\microsoft.identitymodel.abstractions\\7.7.1\\microsoft.identitymodel.abstractions.7.7.1.nupkg.sha512",
