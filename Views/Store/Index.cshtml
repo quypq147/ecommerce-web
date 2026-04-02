@@ -1,0 +1,36 @@
+@model IReadOnlyList<EcommerceApp.Models.Product>
+@{
+    ViewData["Title"] = "Store";
+}
+
+<div class="w-full space-y-6">
+    @if (TempData["Message"] is string message)
+    {
+        <div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">@message</div>
+    }
+
+    <div class="flex items-center justify-between">
+        <h1 class="text-3xl font-bold text-slate-900">Products</h1>
+        <a asp-controller="Cart" asp-action="Index" class="rounded-full bg-orange-600 px-4 py-2 text-sm font-semibold text-white">View Cart</a>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+        @foreach (var product in Model)
+        {
+            <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                <img src="@product.ImageUrl" alt="@product.Name" class="mb-4 h-44 w-full rounded-xl object-cover" />
+                <div class="mb-2 text-xs font-semibold uppercase tracking-wide text-orange-500">@product.Category?.Name</div>
+                <h2 class="text-lg font-bold text-slate-900">@product.Name</h2>
+                <p class="mt-2 text-sm text-slate-500">@product.Description</p>
+                <div class="mt-4 text-xl font-bold text-slate-900">@product.Price.ToString("C")</div>
+                <div class="mt-4 flex gap-3">
+                    <a asp-action="Details" asp-route-id="@product.Id" class="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700">Details</a>
+                    <form asp-action="AddToCart" asp-route-id="@product.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="rounded-lg bg-orange-600 px-3 py-2 text-sm font-semibold text-white">Add to cart</button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+</div>
