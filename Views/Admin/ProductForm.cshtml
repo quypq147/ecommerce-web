@@ -1,0 +1,79 @@
+@model EcommerceApp.ViewModels.Admin.AdminProductFormViewModel
+
+@{
+    var isEdit = Model.Id.HasValue;
+    var actionUrl = isEdit ? "/Admin/EditProduct" : "/Admin/CreateProduct";
+}
+
+<section class="mx-auto max-w-3xl rounded-2xl bg-white p-8 shadow-sm">
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h2 class="text-3xl font-black text-on-surface">@(isEdit ? "Edit Product" : "Add Product")</h2>
+            <p class="mt-2 text-secondary">Manage catalog items in the admin module.</p>
+        </div>
+        <a class="rounded-lg border border-outline-variant/50 px-4 py-2 text-sm font-semibold text-secondary" href="/Admin">Back</a>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="mb-6 rounded-xl border border-error/20 bg-error/5 px-4 py-3 text-sm text-error">
+            @Html.ValidationSummary(excludePropertyErrors: false)
+        </div>
+    }
+
+    <form action="@actionUrl" class="space-y-5" method="post">
+        @Html.AntiForgeryToken()
+        @if (isEdit)
+        {
+            <input name="Id" type="hidden" value="@Model.Id" />
+        }
+
+        <div>
+            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Name</label>
+            <input class="w-full rounded-xl border border-outline-variant/50 px-4 py-3" name="Name" type="text" value="@Model.Name" />
+        </div>
+
+        <div>
+            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Description</label>
+            <textarea class="w-full rounded-xl border border-outline-variant/50 px-4 py-3" name="Description" rows="4">@Model.Description</textarea>
+        </div>
+
+        <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div>
+                <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Price</label>
+                <input class="w-full rounded-xl border border-outline-variant/50 px-4 py-3" min="0" name="Price" step="0.01" type="number" value="@Model.Price" />
+            </div>
+            <div>
+                <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Stock</label>
+                <input class="w-full rounded-xl border border-outline-variant/50 px-4 py-3" min="0" name="StockQuantity" type="number" value="@Model.StockQuantity" />
+            </div>
+        </div>
+
+        <div>
+            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Image URL</label>
+            <input class="w-full rounded-xl border border-outline-variant/50 px-4 py-3" name="ImageUrl" type="text" value="@Model.ImageUrl" />
+        </div>
+
+        <div>
+            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Category</label>
+            <select class="w-full rounded-xl border border-outline-variant/50 px-4 py-3" name="CategoryId">
+                <option value="">Select category</option>
+                @foreach (var category in Model.Categories)
+                {
+                    if (category.Id == Model.CategoryId)
+                    {
+                        <option selected="selected" value="@category.Id">@category.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <button class="inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white" type="submit">
+            @(isEdit ? "Save Changes" : "Create Product")
+        </button>
+    </form>
+</section>

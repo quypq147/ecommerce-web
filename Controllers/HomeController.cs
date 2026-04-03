@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using EcommerceApp.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EcommerceApp.Controllers;
 
@@ -12,6 +13,12 @@ public class HomeController : Controller
     }
 
     public IActionResult Privacy()
+    {
+        return View();
+    }
+
+    [AllowAnonymous]
+    public IActionResult AccessDenied()
     {
         return View();
     }
