@@ -1,0 +1,84 @@
+﻿@model EcommerceApp.ViewModels.CheckoutViewModel
+
+<div class="container mx-auto px-4 py-10">
+    <div class="flex flex-wrap -mx-4">
+        <div class="w-full lg:w-2/3 px-4">
+            <h2 class="text-2xl font-bold mb-6">Thanh toán</h2>
+
+            <form asp-action="Process" method="post" class="bg-white p-6 rounded-lg shadow-sm border">
+                <div class="mb-6">
+                    <label class="block font-semibold mb-2">Hình thức thanh toán</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center p-3 border rounded cursor-pointer hover:bg-gray-50">
+                            <input type="radio" asp-for="PaymentMethod" value="Card" class="mr-2" checked>
+                            <span>💳 Thẻ</span>
+                        </label>
+                        <label class="flex items-center p-3 border rounded cursor-pointer hover:bg-gray-50">
+                            <input type="radio" asp-for="PaymentMethod" value="COD" class="mr-2">
+                            <span>✋ Thanh toán khi nhận</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm">Họ và tên</label>
+                        <input asp-for="FullName" class="w-full border p-2 rounded bg-gray-50" placeholder="NGUYEN VAN A">
+                    </div>
+                    <div>
+                        <label class="block text-sm">Số thẻ</label>
+                        <input asp-for="CardNumber" class="w-full border p-2 rounded bg-gray-50" placeholder="0000 0000 0000 0000">
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex-1">
+                            <label class="block text-sm">Ngày hết hạn</label>
+                            <input asp-for="ExpiryDate" class="w-full border p-2 rounded bg-gray-50" placeholder="MM/YY">
+                        </div>
+                        <div class="w-1/3">
+                            <label class="block text-sm">CVV</label>
+                            <input asp-for="CVV" class="w-full border p-2 rounded bg-gray-50" placeholder="***">
+                        </div>
+                    </div>
+                    <div class="flex items-center py-2">
+                        <input type="checkbox" id="save" class="mr-2">
+                        <label for="save" class="text-sm">Lưu thông tin thẻ</label>
+                    </div>
+                </div>
+
+                <div class="flex justify-between mt-10">
+                    <a asp-controller="Cart" asp-action="Index" class="px-8 py-2 bg-orange-400 text-white rounded font-bold">Hủy</a>
+                    <button type="submit" class="px-8 py-2 bg-gray-300 text-gray-700 rounded font-bold">Thanh toán</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="w-full lg:w-1/3 px-4 mt-10 lg:mt-0">
+            <div class="bg-gray-100 p-6 rounded-lg">
+                <h3 class="text-xl font-bold mb-4">Order của bạn</h3>
+                <table class="w-full text-sm mb-6">
+                    <thead>
+                        <tr class="border-b">
+                            <th class="text-left py-2">Tên sản phẩm</th>
+                            <th class="text-center py-2">SL</th>
+                            <th class="text-right py-2">Đơn giá</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.CartItems)
+                        {
+                            <tr>
+                                <td class="py-2">@item.Product.Name</td>
+                                <td class="text-center py-2">@item.Quantity</td>
+                                <td class="text-right py-2">@item.Product.Price.ToString("N0") đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <div class="border-t pt-4 flex justify-between items-center">
+                    <span class="text-lg font-bold">Tổng đơn:</span>
+                    <span class="text-xl font-bold text-orange-600">@Model.TotalAmount.ToString("N0") đ</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
