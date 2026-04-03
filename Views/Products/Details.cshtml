@@ -1,0 +1,22 @@
+@model EcommerceApp.Models.Product
+@{
+    ViewData["Title"] = "Product Details";
+}
+
+<div class="mx-auto max-w-3xl space-y-6">
+    <h1 class="text-3xl font-bold text-slate-900">Product Details</h1>
+
+    <div class="space-y-3 rounded-2xl bg-white p-6 shadow-sm">
+        <div><span class="font-semibold text-slate-700">Name:</span> @Model.Name</div>
+        <div><span class="font-semibold text-slate-700">Description:</span> @Model.Description</div>
+        <div><span class="font-semibold text-slate-700">Category:</span> @Model.Category?.Name</div>
+        <div><span class="font-semibold text-slate-700">Price:</span> @Model.Price.ToString("C")</div>
+        <div><span class="font-semibold text-slate-700">Stock:</span> @Model.StockQuantity</div>
+        <div><span class="font-semibold text-slate-700">Image URL:</span> @Model.ImageUrl</div>
+    </div>
+
+    <div class="flex gap-3">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="rounded-lg bg-orange-600 px-4 py-2 font-semibold text-white">Edit</a>
+        <a asp-action="Index" class="rounded-lg border border-slate-300 px-4 py-2 font-semibold text-slate-700">Back</a>
+    </div>
+</div>
