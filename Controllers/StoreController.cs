@@ -45,4 +45,16 @@ public class StoreController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+
+    public IActionResult Reviews(int id)
+    {
+        var product = _productCatalogService.GetProductById(id);
+        if (product is null)
+        {
+            return NotFound();
+        }
+
+        return View(product);
+    }
 }
+
