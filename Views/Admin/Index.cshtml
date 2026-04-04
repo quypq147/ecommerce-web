@@ -8,26 +8,26 @@
 
     <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-            <h2 class="text-4xl font-black text-on-surface">Product Inventory</h2>
-            <p class="mt-2 text-secondary">Manage products and stock from the admin module.</p>
+            <h2 class="text-4xl font-black text-on-surface">Kho sản phẩm</h2>
+            <p class="mt-2 text-secondary">Quản lý sản phẩm và tồn kho từ trang quản trị.</p>
         </div>
         <a class="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white hover:opacity-90"
            href="/Admin/CreateProduct">
-            + Add New Product
+            + Thêm sản phẩm mới
         </a>
     </div>
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div class="rounded-2xl bg-surface-container-low p-6">
-            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Total Catalog</p>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Tổng sản phẩm</p>
             <p class="mt-2 text-4xl font-black text-on-surface">@Model.TotalCatalog</p>
         </div>
         <div class="rounded-2xl bg-surface-container-low p-6">
-            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Active Stock</p>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Tồn kho khả dụng</p>
             <p class="mt-2 text-4xl font-black text-on-surface">@Model.ActiveStock</p>
         </div>
         <div class="rounded-2xl bg-surface-container-low p-6">
-            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Low Inventory</p>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Sắp hết hàng</p>
             <p class="mt-2 text-4xl font-black text-on-surface">@Model.LowInventoryCount</p>
         </div>
     </div>
@@ -36,23 +36,23 @@
         <form action="/Admin" class="mb-5 flex gap-3" method="get">
             <input class="w-full rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm"
                    name="search"
-                   placeholder="Search by name, category, description..."
+                   placeholder="Tìm theo tên, danh mục, mô tả..."
                    type="text"
                    value="@Model.Search" />
-            <button class="rounded-xl border border-outline-variant/50 px-4 py-3 text-sm font-semibold text-secondary" type="submit">Search</button>
-            <a class="rounded-xl border border-outline-variant/50 px-4 py-3 text-sm font-semibold text-secondary" href="/Admin">Reset</a>
+            <button class="rounded-xl border border-outline-variant/50 px-4 py-3 text-sm font-semibold text-secondary" type="submit">Tìm kiếm</button>
+            <a class="rounded-xl border border-outline-variant/50 px-4 py-3 text-sm font-semibold text-secondary" href="/Admin">Đặt lại</a>
         </form>
 
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm">
                 <thead>
                     <tr class="border-b border-surface-container-high text-left text-[11px] uppercase tracking-[0.15em] text-secondary">
-                        <th class="pb-3">Product</th>
-                        <th class="pb-3">Category</th>
-                        <th class="pb-3">Price</th>
-                        <th class="pb-3">Stock</th>
-                        <th class="pb-3">Status</th>
-                        <th class="pb-3 text-right">Actions</th>
+                        <th class="pb-3">Sản phẩm</th>
+                        <th class="pb-3">Danh mục</th>
+                        <th class="pb-3">Giá</th>
+                        <th class="pb-3">Tồn kho</th>
+                        <th class="pb-3">Trạng thái</th>
+                        <th class="pb-3 text-right">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -65,35 +65,35 @@
                             <td class="py-4 font-semibold text-on-surface">@product.Price.ToString("C")</td>
                             <td class="py-4">
                                 <span class="rounded-full px-3 py-1 text-xs font-semibold @(isDisabled ? "bg-slate-200 text-slate-700" : product.StockQuantity <= 15 ? "bg-error/10 text-error" : "bg-emerald-100 text-emerald-700")">
-                                    @product.StockQuantity units
+                                    @product.StockQuantity sản phẩm
                                 </span>
                             </td>
                             <td class="py-4">
                                 <span class="rounded-full px-3 py-1 text-xs font-semibold @(isDisabled ? "bg-slate-200 text-slate-700" : "bg-emerald-100 text-emerald-700")">
-                                    @(isDisabled ? "Disabled" : "Active")
+                                    @(isDisabled ? "Đã tắt" : "Đang hoạt động")
                                 </span>
                             </td>
                             <td class="py-4">
                                 <div class="flex items-center justify-end gap-2">
                                     <a class="rounded-lg border border-outline-variant/50 px-3 py-2 text-xs font-semibold text-secondary"
-                                       href="/Admin/EditProduct/@product.Id">Edit</a>
+                                       href="/Admin/EditProduct/@product.Id">Sửa</a>
                                     @if (isDisabled)
                                     {
-                                        <form action="/Admin/EnableProduct/@product.Id" method="post" onsubmit="return confirm('Enable this product?');">
+                                        <form action="/Admin/EnableProduct/@product.Id" method="post" onsubmit="return confirm('Bật sản phẩm này?');">
                                             @Html.AntiForgeryToken()
-                                            <button class="rounded-lg border border-emerald-300 px-3 py-2 text-xs font-semibold text-emerald-700" type="submit">Enable</button>
+                                            <button class="rounded-lg border border-emerald-300 px-3 py-2 text-xs font-semibold text-emerald-700" type="submit">Bật</button>
                                         </form>
                                     }
                                     else
                                     {
-                                        <form action="/Admin/DisableProduct/@product.Id" method="post" onsubmit="return confirm('Disable this product?');">
+                                        <form action="/Admin/DisableProduct/@product.Id" method="post" onsubmit="return confirm('Tắt sản phẩm này?');">
                                             @Html.AntiForgeryToken()
-                                            <button class="rounded-lg border border-amber-300 px-3 py-2 text-xs font-semibold text-amber-700" type="submit">Disable</button>
+                                            <button class="rounded-lg border border-amber-300 px-3 py-2 text-xs font-semibold text-amber-700" type="submit">Tắt</button>
                                         </form>
                                     }
-                                    <form action="/Admin/DeleteProduct/@product.Id" method="post" onsubmit="return confirm('Delete this product?');">
+                                    <form action="/Admin/DeleteProduct/@product.Id" method="post" onsubmit="return confirm('Xóa sản phẩm này?');">
                                         @Html.AntiForgeryToken()
-                                        <button class="rounded-lg border border-error/30 px-3 py-2 text-xs font-semibold text-error" type="submit">Delete</button>
+                                        <button class="rounded-lg border border-error/30 px-3 py-2 text-xs font-semibold text-error" type="submit">Xóa</button>
                                     </form>
                                 </div>
                             </td>
@@ -106,13 +106,13 @@
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
         <div class="lg:col-span-8 rounded-2xl bg-surface-container-low p-6">
-            <h3 class="text-xl font-black text-on-surface">Inventory Insights</h3>
-            <p class="mt-3 text-secondary">Monitor low-stock products and keep categories clean from this admin dashboard.</p>
+            <h3 class="text-xl font-black text-on-surface">Phân tích tồn kho</h3>
+            <p class="mt-3 text-secondary">Theo dõi sản phẩm sắp hết hàng và quản lý danh mục hiệu quả.</p>
         </div>
         <div class="lg:col-span-4 rounded-2xl bg-primary-container p-6 text-on-primary-container">
-            <h3 class="text-xl font-black">Bulk Actions</h3>
-            <p class="mt-3 text-sm text-on-primary-container/80">Update product data and category structure quickly.</p>
-            <a class="mt-6 inline-flex rounded-lg bg-white/20 px-4 py-2 text-xs font-bold uppercase" href="/Admin/Categories">Manage Categories</a>
+            <h3 class="text-xl font-black">Thao tác nhanh</h3>
+            <p class="mt-3 text-sm text-on-primary-container/80">Cập nhật dữ liệu sản phẩm và cấu trúc danh mục nhanh chóng.</p>
+            <a class="mt-6 inline-flex rounded-lg bg-white/20 px-4 py-2 text-xs font-bold uppercase" href="/Admin/Categories">Quản lý danh mục</a>
         </div>
     </div>
 </section>

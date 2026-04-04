@@ -1,7 +1,7 @@
 @model EcommerceApp.Models.Product
 
 @{
-    ViewData["Title"] = Model.Name + " - Reviews";
+    ViewData["Title"] = Model.Name + " - Đánh giá";
 }
 
 <style>
@@ -209,15 +209,15 @@
 </style>
 
 <div class="container my-4">
-    <a href="@Url.Action("Details", "Store", new { id = Model.Id })" class="back-link">← Back to Product</a>
+    <a href="@Url.Action("Details", "Store", new { id = Model.Id })" class="back-link">← Quay lại sản phẩm</a>
 
     <div class="reviews-container">
         <div class="product-header">
             <h2>@Model.Name</h2>
-            <p>Leave your review and rating for this product</p>
+            <p>Để lại đánh giá và xếp hạng cho sản phẩm này</p>
         </div>
 
-        <h3 class="section-title">Add Your Review</h3>
+        <h3 class="section-title">Thêm đánh giá của bạn</h3>
 
         <div class="review-form">
             <form method="post" action="@Url.Action("Create", "Review")">
@@ -226,38 +226,38 @@
                 <input type="hidden" name="productId" value="@Model.Id">
 
                 <div class="mb-3">
-                    <label for="reviewerName" class="form-label">Your Name</label>
-                    <input type="text" class="form-control" id="reviewerName" name="reviewerName" placeholder="Enter your name" required>
+                    <label for="reviewerName" class="form-label">Tên của bạn</label>
+                    <input type="text" class="form-control" id="reviewerName" name="reviewerName" placeholder="Nhập tên của bạn" required>
                 </div>
 
                 <div class="mb-3">
-                    <label for="rating" class="form-label">Rating</label>
+                    <label for="rating" class="form-label">Đánh giá</label>
                     <select class="form-select" id="rating" name="rating" required>
-                        <option value="">Select a rating</option>
-                        <option value="1">⭐ 1 Star - Poor</option>
-                        <option value="2">⭐⭐ 2 Stars - Fair</option>
-                        <option value="3">⭐⭐⭐ 3 Stars - Good</option>
-                        <option value="4">⭐⭐⭐⭐ 4 Stars - Very Good</option>
-                        <option value="5">⭐⭐⭐⭐⭐ 5 Stars - Excellent</option>
+                        <option value="">Chọn số sao</option>
+                        <option value="1">⭐ 1 Sao - Kém</option>
+                        <option value="2">⭐⭐ 2 Sao - Tạm</option>
+                        <option value="3">⭐⭐⭐ 3 Sao - Tốt</option>
+                        <option value="4">⭐⭐⭐⭐ 4 Sao - Rất tốt</option>
+                        <option value="5">⭐⭐⭐⭐⭐ 5 Sao - Xuất sắc</option>
                     </select>
                 </div>
 
                 <div class="mb-3">
-                    <label for="comment" class="form-label">Your Review</label>
-                    <textarea class="form-control" id="comment" name="comment" rows="5" placeholder="Share your thoughts about this product..." required></textarea>
+                    <label for="comment" class="form-label">Nhận xét của bạn</label>
+                    <textarea class="form-control" id="comment" name="comment" rows="5" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..." required></textarea>
                 </div>
 
                 <div class="btn-group">
-                    <button type="submit" class="btn-submit">Submit Review ✓</button>
-                    <a href="@Url.Action("Details", "Store", new { id = Model.Id })" class="btn-back">Cancel</a>
+                    <button type="submit" class="btn-submit">Gửi đánh giá ✓</button>
+                    <a href="@Url.Action("Details", "Store", new { id = Model.Id })" class="btn-back">Hủy</a>
                 </div>
             </form>
         </div>
 
-        <h3 class="section-title">Customer Reviews</h3>
+        <h3 class="section-title">Đánh giá khách hàng</h3>
 
         <div class="no-reviews">
-            <p>No reviews yet. Be the first to review this product!</p>
+            <p>Chưa có đánh giá nào. Hãy là người đầu tiên đánh giá sản phẩm này!</p>
         </div>
     </div>
 </div>

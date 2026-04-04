@@ -10,11 +10,11 @@
 }
 
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html class="light" lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Admin Panel | TechCurator</title>
+    <title>Bảng quản trị | TechCurator</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
@@ -49,22 +49,22 @@
     <div class="flex min-h-screen">
         <aside class="fixed left-0 top-0 flex h-screen w-64 flex-col border-r border-[#565e74]/10 bg-[#f7f9fb] p-6">
             <div class="mb-10">
-                <h1 class="text-lg font-black tracking-tight text-[#565e74]">Admin Panel</h1>
-                <p class="text-xs font-medium text-secondary/60">Tech Curator Hub</p>
+                <h1 class="text-lg font-black tracking-tight text-[#565e74]">Bảng quản trị</h1>
+                <p class="text-xs font-medium text-secondary/60">Trung tâm Tech Curator</p>
             </div>
 
             <nav class="flex-grow space-y-2">
                 <a class="@NavClass(productsActive)" href="/Admin">
                     <span class="material-symbols-outlined text-xl">inventory_2</span>
-                    <span class="text-sm">Products</span>
+                    <span class="text-sm">Sản phẩm</span>
                 </a>
                 <a class="@NavClass(categoriesActive)" href="/Admin/Categories">
                     <span class="material-symbols-outlined text-xl">category</span>
-                    <span class="text-sm">Categories</span>
+                    <span class="text-sm">Danh mục</span>
                 </a>
                 <a class="@NavClass(ordersActive)" href="/Admin/Orders">
                     <span class="material-symbols-outlined text-xl">shopping_cart</span>
-                    <span class="text-sm">Orders</span>
+                    <span class="text-sm">Đơn hàng</span>
                 </a>
             </nav>
 
@@ -73,7 +73,7 @@
                     @Html.AntiForgeryToken()
                     <button class="flex w-full items-center gap-3 px-4 py-3 text-error hover:bg-error/5" type="submit">
                         <span class="material-symbols-outlined text-xl">logout</span>
-                        <span class="text-sm font-medium">Logout</span>
+                        <span class="text-sm font-medium">Đăng xuất</span>
                     </button>
                 </form>
             </div>
@@ -81,7 +81,7 @@
 
         <main class="ml-64 flex min-h-screen flex-grow flex-col">
             <header class="sticky top-0 z-40 flex items-center justify-between bg-white/85 px-8 py-4 shadow-[0_24px_40px_-15px_rgba(86,94,116,0.06)] backdrop-blur-xl">
-                <span class="text-xl font-bold tracking-tight text-[#565e74]">The Digital Curator</span>
+                <span class="text-xl font-bold tracking-tight text-[#565e74]">Nhà tuyển chọn số</span>
                 <div class="flex items-center gap-4">
                     <span class="material-symbols-outlined text-secondary">notifications</span>
                     <span class="material-symbols-outlined text-secondary">settings</span>
@@ -93,7 +93,7 @@
             </div>
 
             <footer class="p-8 text-center">
-                <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary/40">© 2024 The Digital Curator • Proprietary Admin Shell v2.4</p>
+                <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary/40">© 2024 The Digital Curator • Giao diện quản trị v2.4</p>
             </footer>
         </main>
     </div>

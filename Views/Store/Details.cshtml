@@ -4,7 +4,7 @@
 }
 
 <div class="w-full">
-    <a asp-action="Index" class="mb-6 inline-block text-sm font-medium text-orange-600">← Back to products</a>
+    <a asp-action="Index" class="mb-6 inline-block text-sm font-medium text-orange-600">← Quay lại sản phẩm</a>
 
     <div class="grid grid-cols-1 gap-8 rounded-2xl bg-white p-6 shadow-sm md:grid-cols-2">
         <img src="@Model.ImageUrl" alt="@Model.Name" class="h-80 w-full rounded-xl object-cover" />
@@ -13,12 +13,12 @@
             <h1 class="mt-2 text-3xl font-bold text-slate-900">@Model.Name</h1>
             <p class="mt-4 text-slate-600">@Model.Description</p>
             <div class="mt-6 text-2xl font-bold text-slate-900">@Model.Price.ToString("C")</div>
-            <div class="mt-2 text-sm text-slate-500">In stock: @Model.StockQuantity</div>
+            <div class="mt-2 text-sm text-slate-500">Còn hàng: @Model.StockQuantity</div>
 
             <form asp-action="AddToCart" asp-route-id="@Model.Id" method="post" class="mt-6 flex gap-2">
                 @Html.AntiForgeryToken()
-                <button type="submit" class="rounded-lg bg-orange-600 px-4 py-2 font-semibold text-white">Add to cart</button>
-                <a asp-action="Reviews" asp-route-id="@Model.Id" class="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white no-underline hover:no-underline">Write a Review</a>
+                <button type="submit" class="rounded-lg bg-orange-600 px-4 py-2 font-semibold text-white">Thêm vào giỏ</button>
+                <a asp-action="Reviews" asp-route-id="@Model.Id" class="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white no-underline hover:no-underline">Viết đánh giá</a>
             </form>
 
             @if (TempData["ReviewMessage"] != null)

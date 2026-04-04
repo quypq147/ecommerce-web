@@ -1,7 +1,7 @@
 @model Order
 
 @{
-    ViewData["Title"] = "Order Confirmation";
+    ViewData["Title"] = "Xác nhận đơn hàng";
 }
 
 <style>
@@ -239,76 +239,89 @@
     <div class="container">
         <div class="success-card">
             <div class="success-icon">✓</div>
-            <h1 class="success-title">Order Placed Successfully!</h1>
-            <p class="success-subtitle">Thank you for your purchase. Your order has been confirmed.</p>
+            <h1 class="success-title">Đặt hàng thành công!</h1>
+            <p class="success-subtitle">Cảm ơn bạn đã mua sắm. Đơn hàng của bạn đã được xác nhận.</p>
         </div>
 
         <div class="order-details-card">
-            <h3 class="section-title">Order Number</h3>
+            <h3 class="section-title">Mã đơn hàng</h3>
             <div class="order-number-display">
-                <p>Your Order ID</p>
+                <p>Mã đơn của bạn</p>
                 <div class="number">@ViewBag.OrderId</div>
             </div>
 
-            <h3 class="section-title">Order Summary</h3>
+            <h3 class="section-title">Tóm tắt đơn hàng</h3>
             <div class="info-row">
+<<<<<<< Updated upstream
                 <span class="info-label">Order Date:</span>
                 <span class="info-value">@Model.CreatedAtUtc.ToLocalTime().ToString("MMMM dd, yyyy - HH:mm")</span>
+=======
+                <span class="info-label">Ngày đặt:</span>
+                <span class="info-value">@Model.CreatedAtUtc.ToLocalTime().ToString("dd/MM/yyyy - HH:mm")</span>
+>>>>>>> Stashed changes
             </div>
             <div class="info-row">
-                <span class="info-label">Status:</span>
+                <span class="info-label">Trạng thái:</span>
                 <span class="status-badge">@Model.Status</span>
             </div>
             <div class="info-row total-amount-row">
-                <span class="info-label">Total Amount:</span>
+                <span class="info-label">Tổng tiền:</span>
                 <span class="info-value">$@Model.TotalAmount.ToString("F2")</span>
             </div>
 
-            <h3 class="section-title" style="margin-top: 30px;">Shipping Details</h3>
+            <h3 class="section-title" style="margin-top: 30px;">Thông tin giao hàng</h3>
             <div class="customer-info">
                 <div class="customer-section">
-                    <h6>Delivery Information</h6>
+                    <h6>Thông tin nhận hàng</h6>
                     <div class="info-row">
+<<<<<<< Updated upstream
                         <span class="info-label">Recipient Name:</span>
+=======
+                        <span class="info-label">Người nhận:</span>
+>>>>>>> Stashed changes
                         <span class="info-value">@Model.RecipientName</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">Phone:</span>
+                        <span class="info-label">Điện thoại:</span>
                         <span class="info-value">@Model.PhoneNumber</span>
                     </div>
                 </div>
 
                 <div class="customer-section">
-                    <h6>Contact Information</h6>
+                    <h6>Thông tin liên hệ</h6>
                     <div class="info-row">
                         <span class="info-label">Email:</span>
                         <span class="info-value">@Model.CustomerEmail</span>
                     </div>
                     <div class="info-row">
+<<<<<<< Updated upstream
                         <span class="info-label">Shipping Address:</span>
+=======
+                        <span class="info-label">Địa chỉ giao hàng:</span>
+>>>>>>> Stashed changes
                         <span class="info-value">@Model.AddressLine1</span>
                     </div>
                 </div>
             </div>
 
             <div class="payment-steps">
-                <h6>What Happens Next?</h6>
+                <h6>Các bước tiếp theo</h6>
                 <div class="step">
                     <div class="step-number">1</div>
-                    <div class="step-text">You will receive a confirmation email shortly</div>
+                    <div class="step-text">Bạn sẽ sớm nhận được email xác nhận đơn hàng</div>
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
-                    <div class="step-text">Your order will be processed and prepared for shipment</div>
+                    <div class="step-text">Đơn hàng sẽ được xử lý và chuẩn bị giao</div>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
-                    <div class="step-text">You'll receive a tracking number via email</div>
+                    <div class="step-text">Bạn sẽ nhận mã theo dõi qua email</div>
                 </div>
             </div>
 
             <div class="action-buttons">
-                <a href="@Url.Action("Index", "Store")" class="btn-continue">← Continue Shopping</a>
+                <a href="@Url.Action("Index", "Store")" class="btn-continue">← Tiếp tục mua sắm</a>
             </div>
         </div>
     </div>

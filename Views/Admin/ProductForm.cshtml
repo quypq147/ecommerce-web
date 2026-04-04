@@ -8,10 +8,10 @@
 <section class="mx-auto max-w-3xl rounded-2xl bg-white p-8 shadow-sm">
     <div class="mb-8 flex items-center justify-between">
         <div>
-            <h2 class="text-3xl font-black text-on-surface">@(isEdit ? "Edit Product" : "Add Product")</h2>
-            <p class="mt-2 text-secondary">Manage catalog items in the admin module.</p>
+            <h2 class="text-3xl font-black text-on-surface">@(isEdit ? "Sửa sản phẩm" : "Thêm sản phẩm")</h2>
+            <p class="mt-2 text-secondary">Quản lý sản phẩm trong trang quản trị.</p>
         </div>
-        <a class="rounded-lg border border-outline-variant/50 px-4 py-2 text-sm font-semibold text-secondary" href="/Admin">Back</a>
+        <a class="rounded-lg border border-outline-variant/50 px-4 py-2 text-sm font-semibold text-secondary" href="/Admin">Quay lại</a>
     </div>
 
     @if (!ViewData.ModelState.IsValid)
@@ -29,35 +29,35 @@
         }
 
         <div>
-            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Name</label>
+            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Tên</label>
             <input class="w-full rounded-xl border border-outline-variant/50 px-4 py-3" name="Name" type="text" value="@Model.Name" />
         </div>
 
         <div>
-            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Description</label>
+            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Mô tả</label>
             <textarea class="w-full rounded-xl border border-outline-variant/50 px-4 py-3" name="Description" rows="4">@Model.Description</textarea>
         </div>
 
         <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
             <div>
-                <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Price</label>
+                <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Giá</label>
                 <input class="w-full rounded-xl border border-outline-variant/50 px-4 py-3" min="0" name="Price" step="0.01" type="number" value="@Model.Price" />
             </div>
             <div>
-                <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Stock</label>
+                <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Tồn kho</label>
                 <input class="w-full rounded-xl border border-outline-variant/50 px-4 py-3" min="0" name="StockQuantity" type="number" value="@Model.StockQuantity" />
             </div>
         </div>
 
         <div>
-            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Image URL</label>
+            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">URL hình ảnh</label>
             <input class="w-full rounded-xl border border-outline-variant/50 px-4 py-3" name="ImageUrl" type="text" value="@Model.ImageUrl" />
         </div>
 
         <div>
-            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Category</label>
+            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Danh mục</label>
             <select class="w-full rounded-xl border border-outline-variant/50 px-4 py-3" name="CategoryId">
-                <option value="">Select category</option>
+                <option value="">Chọn danh mục</option>
                 @foreach (var category in Model.Categories)
                 {
                     if (category.Id == Model.CategoryId)
@@ -73,7 +73,7 @@
         </div>
 
         <button class="inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white" type="submit">
-            @(isEdit ? "Save Changes" : "Create Product")
+            @(isEdit ? "Lưu thay đổi" : "Tạo sản phẩm")
         </button>
     </form>
 </section>

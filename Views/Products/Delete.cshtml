@@ -1,23 +1,23 @@
 @model EcommerceApp.Models.Product
 @{
-    ViewData["Title"] = "Delete Product";
+    ViewData["Title"] = "Xóa sản phẩm";
 }
 
 <div class="mx-auto max-w-2xl space-y-6">
-    <h1 class="text-3xl font-bold text-slate-900">Delete Product</h1>
+    <h1 class="text-3xl font-bold text-slate-900">Xóa sản phẩm</h1>
 
     <div class="rounded-2xl border border-red-200 bg-red-50 p-6">
-        <p class="text-sm text-red-700">Are you sure you want to delete this product?</p>
+        <p class="text-sm text-red-700">Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
         <div class="mt-4 space-y-1 text-sm text-slate-700">
-            <div><span class="font-semibold">Name:</span> @Model.Name</div>
-            <div><span class="font-semibold">Category:</span> @Model.Category?.Name</div>
-            <div><span class="font-semibold">Price:</span> @Model.Price.ToString("C")</div>
+            <div><span class="font-semibold">Tên:</span> @Model.Name</div>
+            <div><span class="font-semibold">Danh mục:</span> @Model.Category?.Name</div>
+            <div><span class="font-semibold">Giá:</span> @Model.Price.ToString("C")</div>
         </div>
     </div>
 
     <form asp-action="Delete" method="post" class="flex gap-3">
         <input type="hidden" asp-for="Id" />
-        <button type="submit" class="rounded-lg bg-red-600 px-4 py-2 font-semibold text-white">Delete</button>
-        <a asp-action="Index" class="rounded-lg border border-slate-300 px-4 py-2 font-semibold text-slate-700">Cancel</a>
+        <button type="submit" class="rounded-lg bg-red-600 px-4 py-2 font-semibold text-white">Xóa</button>
+        <a asp-action="Index" class="rounded-lg border border-slate-300 px-4 py-2 font-semibold text-slate-700">Hủy</a>
     </form>
 </div>

@@ -9,33 +9,33 @@
 
     <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-            <h2 class="text-4xl font-black text-on-surface">Order #@Model.Id</h2>
-            <p class="mt-2 text-secondary">Created @Model.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</p>
+            <h2 class="text-4xl font-black text-on-surface">Đơn hàng #@Model.Id</h2>
+            <p class="mt-2 text-secondary">Tạo lúc @Model.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</p>
         </div>
         <a class="inline-flex items-center justify-center rounded-xl border border-outline-variant/50 px-4 py-3 text-sm font-semibold text-secondary"
-           href="/Admin/Orders">Back to Orders</a>
+           href="/Admin/Orders">Quay lại đơn hàng</a>
     </div>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div class="rounded-2xl bg-surface-container-low p-6">
-            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Status</p>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Trạng thái</p>
             <p class="mt-2 text-2xl font-black text-on-surface">@Model.Status</p>
-            <p class="mt-2 text-xs text-secondary">Last updated: @(Model.UpdatedAtUtc?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "-" )</p>
+            <p class="mt-2 text-xs text-secondary">Cập nhật lần cuối: @(Model.UpdatedAtUtc?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "-" )</p>
         </div>
         <div class="rounded-2xl bg-surface-container-low p-6">
-            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Customer</p>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Khách hàng</p>
             <p class="mt-2 text-lg font-semibold text-on-surface">@Model.RecipientName</p>
             <p class="text-sm text-secondary">@Model.CustomerEmail</p>
         </div>
         <div class="rounded-2xl bg-surface-container-low p-6">
-            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Total Amount</p>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Tổng tiền</p>
             <p class="mt-2 text-2xl font-black text-on-surface">@Model.TotalAmount.ToString("C")</p>
         </div>
     </div>
 
     <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <div class="rounded-2xl bg-white p-6 shadow-sm">
-            <h3 class="text-lg font-black text-on-surface">Update Status</h3>
+            <h3 class="text-lg font-black text-on-surface">Cập nhật trạng thái</h3>
             <form action="/Admin/UpdateOrderStatus" class="mt-4 space-y-4" method="post">
                 @Html.AntiForgeryToken()
                 <input name="orderId" type="hidden" value="@Model.Id" />
@@ -49,43 +49,43 @@
                 </select>
 
                 <button class="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white hover:opacity-90" type="submit">
-                    Save Status
+                    Lưu trạng thái
                 </button>
             </form>
         </div>
 
         <div class="rounded-2xl bg-white p-6 shadow-sm">
-            <h3 class="text-lg font-black text-on-surface">Shipping Address</h3>
+            <h3 class="text-lg font-black text-on-surface">Địa chỉ giao hàng</h3>
             <form action="/Admin/UpdateOrderAddress" class="mt-4 grid gap-3" method="post">
                 @Html.AntiForgeryToken()
                 <input name="orderId" type="hidden" value="@Model.Id" />
 
-                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="recipientName" placeholder="Recipient name" value="@Model.RecipientName" />
-                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="phoneNumber" placeholder="Phone" value="@Model.PhoneNumber" />
-                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="addressLine1" placeholder="Address line 1" value="@Model.AddressLine1" />
-                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="addressLine2" placeholder="Address line 2" value="@Model.AddressLine2" />
-                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="city" placeholder="City" value="@Model.City" />
-                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="stateOrProvince" placeholder="State / Province" value="@Model.StateOrProvince" />
-                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="postalCode" placeholder="Postal code" value="@Model.PostalCode" />
-                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="country" placeholder="Country" value="@Model.Country" />
+                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="recipientName" placeholder="Tên người nhận" value="@Model.RecipientName" />
+                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="phoneNumber" placeholder="Điện thoại" value="@Model.PhoneNumber" />
+                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="addressLine1" placeholder="Địa chỉ dòng 1" value="@Model.AddressLine1" />
+                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="addressLine2" placeholder="Địa chỉ dòng 2" value="@Model.AddressLine2" />
+                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="city" placeholder="Thành phố" value="@Model.City" />
+                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="stateOrProvince" placeholder="Tỉnh / Bang" value="@Model.StateOrProvince" />
+                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="postalCode" placeholder="Mã bưu chính" value="@Model.PostalCode" />
+                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="country" placeholder="Quốc gia" value="@Model.Country" />
 
                 <button class="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white hover:opacity-90" type="submit">
-                    Save Address
+                    Lưu địa chỉ
                 </button>
             </form>
         </div>
     </div>
 
     <div class="rounded-2xl bg-white p-6 shadow-sm">
-        <h3 class="text-lg font-black text-on-surface">Order Items</h3>
+        <h3 class="text-lg font-black text-on-surface">Sản phẩm trong đơn</h3>
         <div class="mt-4 overflow-x-auto">
             <table class="min-w-full text-sm">
                 <thead>
                     <tr class="border-b border-surface-container-high text-left text-[11px] uppercase tracking-[0.15em] text-secondary">
-                        <th class="pb-3">Product</th>
-                        <th class="pb-3">Unit Price</th>
-                        <th class="pb-3">Quantity</th>
-                        <th class="pb-3">Line Total</th>
+                        <th class="pb-3">Sản phẩm</th>
+                        <th class="pb-3">Đơn giá</th>
+                        <th class="pb-3">Số lượng</th>
+                        <th class="pb-3">Thành tiền</th>
                     </tr>
                 </thead>
                 <tbody>

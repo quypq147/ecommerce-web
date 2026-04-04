@@ -1,7 +1,7 @@
 @model CartViewModel
 
 @{
-    ViewData["Title"] = "Checkout";
+    ViewData["Title"] = "Thanh toán";
 }
 
 <style>
@@ -194,21 +194,21 @@
 <div class="checkout-container">
     <div class="container">
         <div class="checkout-header">
-            <h1>Secure Checkout</h1>
-            <p>Complete your order in just a few steps</p>
+            <h1>Thanh toán an toàn</h1>
+            <p>Hoàn tất đơn hàng chỉ với vài bước</p>
         </div>
 
         <div class="row">
             <div class="col-lg-8">
                 <div class="order-summary-card">
-                    <h3 class="section-title">📦 Order Summary</h3>
+                    <h3 class="section-title">📦 Tóm tắt đơn hàng</h3>
                     <table class="table order-summary-table">
                         <thead>
                             <tr>
-                                <th>Product</th>
-                                <th>Price</th>
-                                <th>Quantity</th>
-                                <th>Total</th>
+                                <th>Sản phẩm</th>
+                                <th>Giá</th>
+                                <th>Số lượng</th>
+                                <th>Tổng</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -230,7 +230,7 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="3" style="text-align: right;">Grand Total:</td>
+                                <td colspan="3" style="text-align: right;">Tổng cộng:</td>
                                 <td style="font-size: 20px;">$@Model.Total.ToString("F2")</td>
                             </tr>
                         </tfoot>
@@ -238,35 +238,35 @@
                 </div>
 
                 <div class="shipping-card">
-                    <h3 class="section-title">🚚 Shipping Information</h3>
+                    <h3 class="section-title">🚚 Thông tin giao hàng</h3>
                     <form method="post" action="@Url.Action("PlaceOrder", "Order")">
                         @Html.AntiForgeryToken()
                         
                         <div class="form-row">
                             <div class="mb-3">
-                                <label for="customerName" class="form-label">Full Name</label>
-                                <input type="text" class="form-control" id="customerName" name="customerName" placeholder="John Doe" required>
+                                <label for="customerName" class="form-label">Họ và tên</label>
+                                <input type="text" class="form-control" id="customerName" name="customerName" placeholder="Nguyễn Văn A" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="customerEmail" class="form-label">Email Address</label>
-                                <input type="email" class="form-control" id="customerEmail" name="customerEmail" placeholder="john@example.com" required>
+                                <label for="customerEmail" class="form-label">Địa chỉ email</label>
+                                <input type="email" class="form-control" id="customerEmail" name="customerEmail" placeholder="email@example.com" required>
                             </div>
                         </div>
 
                         <div class="mb-3 full-width-field">
-                            <label for="shippingAddress" class="form-label">Shipping Address</label>
-                            <textarea class="form-control" id="shippingAddress" name="shippingAddress" rows="3" placeholder="Enter your complete shipping address..." required></textarea>
+                            <label for="shippingAddress" class="form-label">Địa chỉ giao hàng</label>
+                            <textarea class="form-control" id="shippingAddress" name="shippingAddress" rows="3" placeholder="Nhập đầy đủ địa chỉ giao hàng..." required></textarea>
                         </div>
 
                         <div class="mb-4 full-width-field">
-                            <label for="phoneNumber" class="form-label">Phone Number</label>
-                            <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="+1 (555) 123-4567" required>
+                            <label for="phoneNumber" class="form-label">Số điện thoại</label>
+                            <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="09xxxxxxxx" required>
                         </div>
 
                         <div class="d-flex gap-3">
-                            <a href="@Url.Action("Index", "Cart")" class="btn btn-back">← Back to Cart</a>
-                            <button type="submit" class="btn btn-place-order">Complete Order →</button>
+                            <a href="@Url.Action("Index", "Cart")" class="btn btn-back">← Quay lại giỏ hàng</a>
+                            <button type="submit" class="btn btn-place-order">Hoàn tất đơn hàng →</button>
                         </div>
                     </form>
                 </div>
@@ -274,35 +274,35 @@
 
             <div class="col-lg-4">
                 <div class="order-summary-card" style="position: sticky; top: 20px; margin-top: 30px;">
-                    <h5 class="order-detail-header">Order Details</h5>
+                    <h5 class="order-detail-header">Chi tiết đơn hàng</h5>
                     
                     <div class="detail-row">
-                        <span>Subtotal:</span>
+                        <span>Tạm tính:</span>
                         <strong>$@Model.Total.ToString("F2")</strong>
                     </div>
                     
                     <div class="detail-row">
-                        <span>Shipping:</span>
-                        <strong style="color: #27ae60;">FREE</strong>
+                        <span>Vận chuyển:</span>
+                        <strong style="color: #27ae60;">MIỄN PHÍ</strong>
                     </div>
                     
                     <div class="detail-row">
-                        <span>Tax:</span>
+                        <span>Thuế:</span>
                         <strong>$0.00</strong>
                     </div>
                     
                     <div style="padding-top: 15px; padding-bottom: 0; border-top: 2px solid #e9ecef; margin-top: 15px;">
                         <div class="detail-row" style="border-bottom: none; font-size: 16px;">
-                            <span><strong>Total:</strong></span>
+                            <span><strong>Tổng:</strong></span>
                             <strong style="font-size: 18px; color: #2c2c2c;">$@Model.Total.ToString("F2")</strong>
                         </div>
                     </div>
 
                     <div class="trust-badge">
                         <p>
-                            ✓ Secure payment processing<br>
-                            ✓ Free shipping worldwide<br>
-                            ✓ 30-day money-back guarantee
+                            ✓ Xử lý thanh toán an toàn<br>
+                            ✓ Miễn phí vận chuyển toàn quốc<br>
+                            ✓ Hoàn tiền trong 30 ngày
                         </p>
                     </div>
                 </div>

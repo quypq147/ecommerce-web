@@ -1,6 +1,6 @@
 @model EcommerceApp.ViewModels.CartViewModel
 @{
-    ViewData["Title"] = "Cart";
+    ViewData["Title"] = "Giỏ hàng";
 }
 
 <div class="w-full space-y-6">
@@ -10,13 +10,13 @@
     }
 
     <div class="flex items-center justify-between">
-        <h1 class="text-3xl font-bold text-slate-900">Your Cart</h1>
-        <a asp-controller="Store" asp-action="Index" class="text-sm font-medium text-orange-600">Continue shopping</a>
+        <h1 class="text-3xl font-bold text-slate-900">Giỏ hàng của bạn</h1>
+        <a asp-controller="Store" asp-action="Index" class="text-sm font-medium text-orange-600">Tiếp tục mua sắm</a>
     </div>
 
     @if (!Model.Items.Any())
     {
-        <div class="rounded-2xl bg-white p-8 text-center text-slate-500 shadow-sm">Your cart is empty.</div>
+        <div class="rounded-2xl bg-white p-8 text-center text-slate-500 shadow-sm">Giỏ hàng của bạn đang trống.</div>
     }
     else
     {
@@ -24,10 +24,10 @@
             <table class="min-w-full divide-y divide-slate-100">
                 <thead class="bg-slate-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Product</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Price</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Quantity</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Line Total</th>
+                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Sản phẩm</th>
+                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Giá</th>
+                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Số lượng</th>
+                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Thành tiền</th>
                         <th class="px-6 py-3"></th>
                     </tr>
                 </thead>
@@ -42,7 +42,7 @@
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="productId" value="@item.Product.Id" />
                                     <input type="number" name="quantity" min="0" value="@item.Quantity" class="w-20 rounded-lg border-slate-200 text-sm" />
-                                    <button type="submit" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">Update</button>
+                                    <button type="submit" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">Cập nhật</button>
                                 </form>
                             </td>
                             <td class="px-6 py-4 text-sm font-semibold text-slate-900">@item.LineTotal.ToString("C")</td>
@@ -50,7 +50,7 @@
                                 <form asp-action="Remove" method="post">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="productId" value="@item.Product.Id" />
-                                    <button type="submit" class="text-sm font-medium text-red-500">Remove</button>
+                                    <button type="submit" class="text-sm font-medium text-red-500">Xóa</button>
                                 </form>
                             </td>
                         </tr>
@@ -60,13 +60,13 @@
         </div>
 
         <div class="flex items-center justify-between rounded-2xl bg-white p-6 shadow-sm">
-            <div class="text-sm text-slate-500">Subtotal</div>
+            <div class="text-sm text-slate-500">Tạm tính</div>
             <div class="text-2xl font-bold text-slate-900">@Model.Total.ToString("C")</div>
         </div>
 
         <form asp-controller="Checkout" asp-action="Index" method="get" class="text-right">
             <button type="submit" class="rounded-lg bg-orange-600 px-5 py-2 font-semibold text-white">
-                Place order
+                Đặt hàng
             </button>
         </form>
     }

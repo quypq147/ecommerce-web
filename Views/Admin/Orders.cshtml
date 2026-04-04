@@ -9,22 +9,22 @@
 
     <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-            <h2 class="text-4xl font-black text-on-surface">Order Management</h2>
-            <p class="mt-2 text-secondary">Track orders, review details, and update fulfillment status.</p>
+            <h2 class="text-4xl font-black text-on-surface">Quản lý đơn hàng</h2>
+            <p class="mt-2 text-secondary">Theo dõi đơn, xem chi tiết và cập nhật trạng thái xử lý.</p>
         </div>
     </div>
 
     <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div class="rounded-2xl bg-surface-container-low p-6">
-            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Total Orders</p>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Tổng đơn hàng</p>
             <p class="mt-2 text-4xl font-black text-on-surface">@Model.TotalOrders</p>
         </div>
         <div class="rounded-2xl bg-surface-container-low p-6">
-            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Pending Orders</p>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Đơn chờ xử lý</p>
             <p class="mt-2 text-4xl font-black text-on-surface">@Model.PendingOrders</p>
         </div>
         <div class="rounded-2xl bg-surface-container-low p-6">
-            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Revenue</p>
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Doanh thu</p>
             <p class="mt-2 text-4xl font-black text-on-surface">@Model.TotalRevenue.ToString("C")</p>
         </div>
     </div>
@@ -33,13 +33,13 @@
         <form action="/Admin/Orders" class="mb-5 grid gap-3 md:grid-cols-[1fr_auto_auto_auto]" method="get">
             <input class="w-full rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm"
                    name="search"
-                   placeholder="Search by order id, customer, recipient..."
+                   placeholder="Tìm theo mã đơn, khách hàng, người nhận..."
                    type="text"
                    value="@Model.Search" />
 
             <select class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm"
                     name="status">
-                <option value="">All Status</option>
+                <option value="">Tất cả trạng thái</option>
                 @foreach (var status in Enum.GetValues<OrderStatus>())
                 {
                     var selected = string.Equals(Model.StatusFilter, status.ToString(), StringComparison.OrdinalIgnoreCase);
@@ -47,14 +47,14 @@
                 }
             </select>
 
-            <button class="rounded-xl border border-outline-variant/50 px-4 py-3 text-sm font-semibold text-secondary" type="submit">Filter</button>
-            <a class="rounded-xl border border-outline-variant/50 px-4 py-3 text-sm font-semibold text-secondary" href="/Admin/Orders">Reset</a>
+            <button class="rounded-xl border border-outline-variant/50 px-4 py-3 text-sm font-semibold text-secondary" type="submit">Lọc</button>
+            <a class="rounded-xl border border-outline-variant/50 px-4 py-3 text-sm font-semibold text-secondary" href="/Admin/Orders">Đặt lại</a>
         </form>
 
         @if (!Model.Orders.Any())
         {
             <div class="rounded-xl border border-dashed border-outline-variant/60 bg-surface-container-low px-6 py-10 text-center text-sm text-secondary">
-                No orders found.
+                Không tìm thấy đơn hàng.
             </div>
         }
         else
@@ -63,13 +63,13 @@
                 <table class="min-w-full text-sm">
                     <thead>
                         <tr class="border-b border-surface-container-high text-left text-[11px] uppercase tracking-[0.15em] text-secondary">
-                            <th class="pb-3">Order</th>
-                            <th class="pb-3">Customer</th>
-                            <th class="pb-3">Date</th>
-                            <th class="pb-3">Items</th>
-                            <th class="pb-3">Status</th>
-                            <th class="pb-3">Amount</th>
-                            <th class="pb-3 text-right">Actions</th>
+                            <th class="pb-3">Đơn hàng</th>
+                            <th class="pb-3">Khách hàng</th>
+                            <th class="pb-3">Ngày</th>
+                            <th class="pb-3">Sản phẩm</th>
+                            <th class="pb-3">Trạng thái</th>
+                            <th class="pb-3">Số tiền</th>
+                            <th class="pb-3 text-right">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -89,7 +89,7 @@
                                 <td class="py-4 font-semibold text-on-surface">@order.TotalAmount.ToString("C")</td>
                                 <td class="py-4 text-right">
                                     <a class="rounded-lg border border-outline-variant/50 px-3 py-2 text-xs font-semibold text-secondary"
-                                       href="/Admin/OrderDetails/@order.Id">View Details</a>
+                                       href="/Admin/OrderDetails/@order.Id">Xem chi tiết</a>
                                 </td>
                             </tr>
                         }

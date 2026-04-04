@@ -1,6 +1,6 @@
 @model EcommerceApp.ViewModels.StoreIndexViewModel
 @{
-    ViewData["Title"] = "Store";
+    ViewData["Title"] = "Cửa hàng";
     var currentUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
 }
 
@@ -113,7 +113,7 @@
         <section id="product-grid" class="space-y-5 scroll-mt-24" tabindex="-1">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-4xl font-bold text-slate-900">High-Performance Laptops</h1>
+                    <h1 class="text-4xl font-bold text-slate-900">Laptop hiệu năng cao</h1>
                     <p class="mt-1 text-sm text-slate-500">Khám phá sức mạnh tối thượng cho công việc và giải trí.</p>
                 </div>
                 <a asp-controller="Cart" asp-action="Index" class="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white">Giỏ hàng</a>

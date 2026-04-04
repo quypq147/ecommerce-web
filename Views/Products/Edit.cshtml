@@ -1,10 +1,10 @@
 @model EcommerceApp.Models.Product
 @{
-    ViewData["Title"] = "Edit Product";
+    ViewData["Title"] = "Sửa sản phẩm";
 }
 
 <div class="mx-auto max-w-3xl space-y-6">
-    <h1 class="text-3xl font-bold text-slate-900">Edit Product</h1>
+    <h1 class="text-3xl font-bold text-slate-900">Sửa sản phẩm</h1>
 
     <form asp-action="Edit" method="post" class="space-y-4 rounded-2xl bg-white p-6 shadow-sm">
         <div asp-validation-summary="ModelOnly" class="text-sm text-red-600"></div>
@@ -48,8 +48,8 @@
         </div>
 
         <div class="flex gap-3">
-            <button type="submit" class="rounded-lg bg-orange-600 px-4 py-2 font-semibold text-white">Save</button>
-            <a asp-action="Index" class="rounded-lg border border-slate-300 px-4 py-2 font-semibold text-slate-700">Back</a>
+            <button type="submit" class="rounded-lg bg-orange-600 px-4 py-2 font-semibold text-white">Lưu</button>
+            <a asp-action="Index" class="rounded-lg border border-slate-300 px-4 py-2 font-semibold text-slate-700">Quay lại</a>
         </div>
     </form>
 </div>

@@ -3,10 +3,10 @@
 <section class="mx-auto max-w-2xl rounded-2xl bg-white p-8 shadow-sm">
     <div class="mb-8 flex items-center justify-between">
         <div>
-            <h2 class="text-3xl font-black text-on-surface">Edit Category</h2>
-            <p class="mt-2 text-secondary">Update category metadata for admin catalog.</p>
+            <h2 class="text-3xl font-black text-on-surface">Sửa danh mục</h2>
+            <p class="mt-2 text-secondary">Cập nhật thông tin danh mục cho kho quản trị.</p>
         </div>
-        <a class="rounded-lg border border-outline-variant/50 px-4 py-2 text-sm font-semibold text-secondary" href="/Admin/Categories">Back</a>
+        <a class="rounded-lg border border-outline-variant/50 px-4 py-2 text-sm font-semibold text-secondary" href="/Admin/Categories">Quay lại</a>
     </div>
 
     @if (!ViewData.ModelState.IsValid)
@@ -21,15 +21,15 @@
         <input name="Id" type="hidden" value="@Model.Id" />
 
         <div>
-            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Name</label>
+            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Tên</label>
             <input class="w-full rounded-xl border border-outline-variant/50 px-4 py-3" name="Name" type="text" value="@Model.Name" />
         </div>
 
         <div>
-            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Description</label>
+            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Mô tả</label>
             <textarea class="w-full rounded-xl border border-outline-variant/50 px-4 py-3" name="Description" rows="4">@Model.Description</textarea>
         </div>
 
-        <button class="inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white" type="submit">Save Category</button>
+        <button class="inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white" type="submit">Lưu danh mục</button>
     </form>
 </section>

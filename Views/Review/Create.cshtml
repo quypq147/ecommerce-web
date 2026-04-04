@@ -1,11 +1,11 @@
 @model Review
 
 @{
-    ViewData["Title"] = "Add Review";
+    ViewData["Title"] = "Thêm đánh giá";
 }
 
 <div class="modal-header">
-    <h5 class="modal-title">Add Product Review</h5>
+    <h5 class="modal-title">Thêm đánh giá sản phẩm</h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 </div>
 
@@ -16,30 +16,30 @@
         <input type="hidden" name="productId" value="@Model.ProductId">
 
         <div class="mb-3">
-            <label for="reviewerName" class="form-label">Your Name</label>
+            <label for="reviewerName" class="form-label">Tên của bạn</label>
             <input type="text" class="form-control" id="reviewerName" name="reviewerName" required>
         </div>
 
         <div class="mb-3">
-            <label for="rating" class="form-label">Rating (1-5 stars)</label>
+            <label for="rating" class="form-label">Đánh giá (1-5 sao)</label>
             <select class="form-select" id="rating" name="rating" required>
-                <option value="">Select a rating</option>
-                <option value="1">1 Star - Poor</option>
-                <option value="2">2 Stars - Fair</option>
-                <option value="3">3 Stars - Good</option>
-                <option value="4">4 Stars - Very Good</option>
-                <option value="5">5 Stars - Excellent</option>
+                <option value="">Chọn số sao</option>
+                <option value="1">1 Sao - Kém</option>
+                <option value="2">2 Sao - Tạm</option>
+                <option value="3">3 Sao - Tốt</option>
+                <option value="4">4 Sao - Rất tốt</option>
+                <option value="5">5 Sao - Xuất sắc</option>
             </select>
         </div>
 
         <div class="mb-3">
-            <label for="comment" class="form-label">Your Review</label>
-            <textarea class="form-control" id="comment" name="comment" rows="4" placeholder="Share your thoughts about this product..." required></textarea>
+            <label for="comment" class="form-label">Nhận xét của bạn</label>
+            <textarea class="form-control" id="comment" name="comment" rows="4" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..." required></textarea>
         </div>
     </div>
 
     <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="submit" class="btn btn-primary">Submit Review</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
     </div>
 </form>
