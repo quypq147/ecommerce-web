@@ -1,0 +1,111 @@
+@model EcommerceApp.ViewModels.Admin.AdminDashboardViewModel
+
+<section class="space-y-8">
+    @if (TempData["AdminMessage"] is string message)
+    {
+        <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">@message</div>
+    }
+
+    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+            <h2 class="text-4xl font-black text-on-surface">Quản lý sản phẩm</h2>
+            <p class="mt-2 text-secondary">Tuyển chọn và quản lý danh mục sản phẩm hiệu năng cao.</p>
+        </div>
+        <a class="inline-flex items-center justify-center rounded-xl bg-gradient-to-br from-primary to-[#ff8c00] px-5 py-3 text-sm font-bold text-white shadow-lg"
+           href="/Admin/CreateProduct">
+            + Thêm sản phẩm mới
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div class="rounded-2xl bg-surface-container-low p-6">
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Tổng sản phẩm</p>
+            <p class="mt-2 text-4xl font-black text-on-surface">@Model.TotalCatalog</p>
+        </div>
+        <div class="rounded-2xl bg-surface-container-low p-6">
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Tồn kho khả dụng</p>
+            <p class="mt-2 text-4xl font-black text-on-surface">@Model.ActiveStock</p>
+        </div>
+        <div class="rounded-2xl bg-surface-container-low p-6">
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Sắp hết hàng</p>
+            <p class="mt-2 text-4xl font-black text-on-surface">@Model.LowInventoryCount</p>
+        </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 shadow-sm">
+        <form action="/Admin/Products" class="mb-5 flex gap-3" method="get">
+            <input class="w-full rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm"
+                   name="search"
+                   placeholder="Tìm theo tên, danh mục, mô tả..."
+                   type="text"
+                   value="@Model.Search" />
+            <button class="rounded-xl border border-outline-variant/50 px-4 py-3 text-sm font-semibold text-secondary" type="submit">Tìm kiếm</button>
+            <a class="rounded-xl border border-outline-variant/50 px-4 py-3 text-sm font-semibold text-secondary" href="/Admin/Products">Đặt lại</a>
+        </form>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead>
+                    <tr class="border-b border-surface-container-high text-left text-[11px] uppercase tracking-[0.15em] text-secondary">
+                        <th class="pb-3">Sản phẩm</th>
+                        <th class="pb-3">Danh mục</th>
+                        <th class="pb-3">Giá</th>
+                        <th class="pb-3">Tồn kho</th>
+                        <th class="pb-3">Trạng thái</th>
+                        <th class="pb-3 text-right">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in Model.Products)
+                    {
+                        var isDisabled = (product.Description ?? string.Empty).StartsWith("[DISABLED] ", StringComparison.Ordinal);
+                        <tr class="border-b border-surface-container-low">
+                            <td class="py-4 font-semibold text-on-surface">@product.Name</td>
+                            <td class="py-4 text-secondary">
+                                <span class="inline-flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-base">@(string.IsNullOrWhiteSpace(product.Category?.Icon) ? "category" : product.Category!.Icon)</span>
+                                    <span>@product.Category?.Name</span>
+                                </span>
+                            </td>
+                            <td class="py-4 font-semibold text-on-surface">@product.Price.ToString("N0")đ</td>
+                            <td class="py-4">
+                                <span class="rounded-full px-3 py-1 text-xs font-semibold @(isDisabled ? "bg-slate-200 text-slate-700" : product.StockQuantity <= 15 ? "bg-error/10 text-error" : "bg-emerald-100 text-emerald-700")">
+                                    @product.StockQuantity sản phẩm
+                                </span>
+                            </td>
+                            <td class="py-4">
+                                <span class="rounded-full px-3 py-1 text-xs font-semibold @(isDisabled ? "bg-slate-200 text-slate-700" : "bg-emerald-100 text-emerald-700")">
+                                    @(isDisabled ? "Đã tắt" : "Đang hoạt động")
+                                </span>
+                            </td>
+                            <td class="py-4">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a class="rounded-lg border border-outline-variant/50 px-3 py-2 text-xs font-semibold text-secondary"
+                                       href="/Admin/EditProduct/@product.Id">Sửa</a>
+                                    @if (isDisabled)
+                                    {
+                                        <form action="/Admin/EnableProduct/@product.Id" method="post" onsubmit="return confirm('Bật sản phẩm này?');">
+                                            @Html.AntiForgeryToken()
+                                            <button class="rounded-lg border border-emerald-300 px-3 py-2 text-xs font-semibold text-emerald-700" type="submit">Bật</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form action="/Admin/DisableProduct/@product.Id" method="post" onsubmit="return confirm('Tắt sản phẩm này?');">
+                                            @Html.AntiForgeryToken()
+                                            <button class="rounded-lg border border-amber-300 px-3 py-2 text-xs font-semibold text-amber-700" type="submit">Tắt</button>
+                                        </form>
+                                    }
+                                    <form action="/Admin/DeleteProduct/@product.Id" method="post" onsubmit="return confirm('Xóa sản phẩm này?');">
+                                        @Html.AntiForgeryToken()
+                                        <button class="rounded-lg border border-error/30 px-3 py-2 text-xs font-semibold text-error" type="submit">Xóa</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

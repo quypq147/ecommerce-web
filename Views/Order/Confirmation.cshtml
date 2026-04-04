@@ -1,0 +1,315 @@
+@model Order
+
+@{
+    ViewData["Title"] = "Xác nhận đơn hàng";
+}
+
+<style>
+    .confirmation-container {
+        background: linear-gradient(135deg, #f5f7fa 0%, #f9fafc 100%);
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+
+    .success-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        padding: 40px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 40px;
+    }
+
+    .success-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .success-subtitle {
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 0;
+    }
+
+    .order-details-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        padding: 40px;
+        margin-bottom: 30px;
+    }
+
+    .section-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #2c2c2c;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: #666;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .info-value {
+        color: #333;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .order-id-row .info-value {
+        font-family: 'Courier New', monospace;
+        background-color: #f8f9fa;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+    }
+
+    .total-amount-row {
+        background: linear-gradient(135deg, #f8f9fa 0%, #f3f5f7 100%);
+        padding: 20px !important;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+
+    .total-amount-row .info-value {
+        font-size: 28px;
+        color: #2c2c2c;
+    }
+
+    .status-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .customer-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-top: 20px;
+    }
+
+    .customer-section h6 {
+        color: #333;
+        font-weight: 700;
+        font-size: 14px;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .customer-section .info-row {
+        flex-direction: column;
+        padding: 10px 0;
+        border-bottom: none;
+    }
+
+    .customer-section .info-label {
+        margin-bottom: 4px;
+        font-size: 12px;
+    }
+
+    .customer-section .info-value {
+        font-size: 14px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        justify-content: center;
+    }
+
+    .btn-continue {
+        background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+        color: white;
+        border: none;
+        padding: 12px 35px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .btn-continue:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        color: white;
+    }
+
+    .order-number-display {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid #2c2c2c;
+    }
+
+    .order-number-display p {
+        margin: 0;
+        color: #666;
+        font-size: 12px;
+        margin-bottom: 5px;
+    }
+
+    .order-number-display .number {
+        font-size: 24px;
+        font-weight: 700;
+        color: #2c2c2c;
+        font-family: 'Courier New', monospace;
+    }
+
+    .payment-steps {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+
+    .payment-steps h6 {
+        color: #333;
+        font-weight: 700;
+        margin-bottom: 15px;
+        font-size: 14px;
+    }
+
+    .step {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 12px;
+    }
+
+    .step-number {
+        background: #2c2c2c;
+        color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 12px;
+        margin-right: 12px;
+        flex-shrink: 0;
+    }
+
+    .step-text {
+        color: #666;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+</style>
+
+<div class="confirmation-container">
+    <div class="container">
+        <div class="success-card">
+            <div class="success-icon">✓</div>
+            <h1 class="success-title">Đặt hàng thành công!</h1>
+            <p class="success-subtitle">Cảm ơn bạn đã mua sắm. Đơn hàng của bạn đã được xác nhận.</p>
+        </div>
+
+        <div class="order-details-card">
+            <h3 class="section-title">Mã đơn hàng</h3>
+            <div class="order-number-display">
+                <p>Mã đơn của bạn</p>
+                <div class="number">@ViewBag.OrderId</div>
+            </div>
+
+            <h3 class="section-title">Tóm tắt đơn hàng</h3>
+            <div class="info-row">
+                <span class="info-label">Ngày đặt:</span>
+                <span class="info-value">@Model.CreatedAtUtc.ToLocalTime().ToString("dd/MM/yyyy - HH:mm")</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Trạng thái:</span>
+                <span class="status-badge">@Model.Status</span>
+            </div>
+            <div class="info-row total-amount-row">
+                <span class="info-label">Tổng tiền:</span>
+                <span class="info-value">$@Model.TotalAmount.ToString("F2")</span>
+            </div>
+
+            <h3 class="section-title" style="margin-top: 30px;">Thông tin giao hàng</h3>
+            <div class="customer-info">
+                <div class="customer-section">
+                    <h6>Thông tin nhận hàng</h6>
+                    <div class="info-row">
+                        <span class="info-label">Người nhận:</span>
+                        <span class="info-value">@Model.RecipientName</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Điện thoại:</span>
+                        <span class="info-value">@Model.PhoneNumber</span>
+                    </div>
+                </div>
+
+                <div class="customer-section">
+                    <h6>Thông tin liên hệ</h6>
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">@Model.CustomerEmail</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Địa chỉ giao hàng:</span>
+                        <span class="info-value">@Model.AddressLine1</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-steps">
+                <h6>Các bước tiếp theo</h6>
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">Bạn sẽ sớm nhận được email xác nhận đơn hàng</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">Đơn hàng sẽ được xử lý và chuẩn bị giao</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">Bạn sẽ nhận mã theo dõi qua email</div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="@Url.Action("Index", "Store")" class="btn-continue">← Tiếp tục mua sắm</a>
+            </div>
+        </div>
+    </div>
+</div>

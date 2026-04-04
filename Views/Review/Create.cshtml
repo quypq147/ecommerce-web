@@ -1,0 +1,45 @@
+@model Review
+
+@{
+    ViewData["Title"] = "Thêm đánh giá";
+}
+
+<div class="modal-header">
+    <h5 class="modal-title">Thêm đánh giá sản phẩm</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+
+<form method="post" action="@Url.Action("Create", "Review")">
+    @Html.AntiForgeryToken()
+    
+    <div class="modal-body">
+        <input type="hidden" name="productId" value="@Model.ProductId">
+
+        <div class="mb-3">
+            <label for="reviewerName" class="form-label">Tên của bạn</label>
+            <input type="text" class="form-control" id="reviewerName" name="reviewerName" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="rating" class="form-label">Đánh giá (1-5 sao)</label>
+            <select class="form-select" id="rating" name="rating" required>
+                <option value="">Chọn số sao</option>
+                <option value="1">1 Sao - Kém</option>
+                <option value="2">2 Sao - Tạm</option>
+                <option value="3">3 Sao - Tốt</option>
+                <option value="4">4 Sao - Rất tốt</option>
+                <option value="5">5 Sao - Xuất sắc</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="comment" class="form-label">Nhận xét của bạn</label>
+            <textarea class="form-control" id="comment" name="comment" rows="4" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..." required></textarea>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+    </div>
+</form>

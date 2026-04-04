@@ -1,0 +1,658 @@
+﻿using EcommerceApp.Data;
+using EcommerceApp.Models;
+using EcommerceApp.ViewModels.Admin;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.IO;
+
+namespace EcommerceApp.Controllers
+{
+    [Authorize(Roles = AppRoles.Admin)]
+    public class AdminController : Controller
+    {
+        private const string DisabledPrefix = "[DISABLED] ";
+        private static readonly string[] CategoryIconOptions =
+        [
+            "category",
+            "laptop_mac",
+            "desktop_windows",
+            "smartphone",
+            "headphones",
+            "mouse",
+            "keyboard",
+            "memory",
+            "developer_board",
+            "videogame_asset",
+            "watch",
+            "photo_camera"
+        ];
+
+        private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _environment;
+
+        public AdminController(ApplicationDbContext context, IWebHostEnvironment environment)
+        {
+            _context = context;
+            _environment = environment;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            var orders = await _context.Orders
+                .AsNoTracking()
+                .Include(o => o.Items)
+                .OrderByDescending(o => o.CreatedAtUtc)
+                .Take(8)
+                .ToListAsync();
+
+            var lowStockProducts = await _context.Products
+                .AsNoTracking()
+                .Include(p => p.Category)
+                .Where(p => p.StockQuantity <= 15)
+                .OrderBy(p => p.StockQuantity)
+                .Take(5)
+                .ToListAsync();
+
+            var viewModel = new AdminOverviewViewModel
+            {
+                TotalRevenue = await _context.Orders.SumAsync(o => (decimal?)o.TotalAmount) ?? 0m,
+                TotalOrders = await _context.Orders.CountAsync(),
+                PendingOrders = await _context.Orders.CountAsync(o => o.Status == OrderStatus.Pending),
+                TotalProducts = await _context.Products.CountAsync(),
+                TotalCategories = await _context.Categories.CountAsync(),
+                RecentOrders = orders.Select(o => new AdminOrderListItemViewModel
+                {
+                    Id = o.Id,
+                    CustomerEmail = o.CustomerEmail,
+                    RecipientName = o.RecipientName,
+                    CreatedAtUtc = o.CreatedAtUtc,
+                    Status = o.Status,
+                    ItemCount = o.Items.Sum(i => i.Quantity),
+                    TotalAmount = o.TotalAmount
+                }).ToList(),
+                LowStockProducts = lowStockProducts
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Products(string? search = null)
+        {
+            var query = _context.Products
+                .Include(p => p.Category)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(p =>
+                    p.Name.Contains(search) ||
+                    (p.Description ?? string.Empty).Contains(search) ||
+                    p.Category.Name.Contains(search));
+            }
+
+            var products = await query
+                .OrderBy(p => p.Name)
+                .ToListAsync();
+
+            var viewModel = new AdminDashboardViewModel
+            {
+                Search = search ?? string.Empty,
+                Products = products,
+                TotalCatalog = products.Count,
+                ActiveStock = products.Where(p => !IsDisabled(p)).Sum(p => p.StockQuantity),
+                LowInventoryCount = products.Count(p => !IsDisabled(p) && p.StockQuantity <= 15)
+            };
+
+            return View(viewModel);
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> CreateProduct()
+        {
+            var viewModel = new AdminProductFormViewModel
+            {
+                Categories = await GetCategoryOptionsAsync()
+            };
+
+            return View("ProductForm", viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateProduct(AdminProductFormViewModel model)
+        {
+            if (!await _context.Categories.AnyAsync(c => c.Id == model.CategoryId))
+            {
+                ModelState.AddModelError(nameof(model.CategoryId), "Vui lòng chọn danh mục hợp lệ.");
+            }
+
+            if (model.ImageFile is null)
+            {
+                ModelState.AddModelError(nameof(model.ImageFile), "Vui lòng chọn ảnh sản phẩm.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                model.Categories = await GetCategoryOptionsAsync();
+                return View("ProductForm", model);
+            }
+
+            var imageUrl = await SaveProductImageAsync(model.ImageFile!);
+
+            var product = new Product
+            {
+                Name = model.Name,
+                Description = BuildDescription(model.Description, disable: false),
+                Price = model.Price,
+                ImageUrl = imageUrl,
+                StockQuantity = model.StockQuantity,
+                CategoryId = model.CategoryId
+            };
+
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+
+            TempData["AdminMessage"] = "Tạo sản phẩm thành công.";
+            return RedirectToAction(nameof(Products));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditProduct(int id)
+        {
+            var product = await _context.Products
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (product is null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new AdminProductFormViewModel
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = CleanDescription(product.Description),
+                Price = product.Price,
+                ImageUrl = product.ImageUrl,
+                StockQuantity = product.StockQuantity,
+                CategoryId = product.CategoryId,
+                Categories = await GetCategoryOptionsAsync()
+            };
+
+            return View("ProductForm", viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProduct(AdminProductFormViewModel model)
+        {
+            if (!model.Id.HasValue)
+            {
+                return BadRequest();
+            }
+
+            if (!await _context.Categories.AnyAsync(c => c.Id == model.CategoryId))
+            {
+                ModelState.AddModelError(nameof(model.CategoryId), "Vui lòng chọn danh mục hợp lệ.");
+            }
+
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == model.Id.Value);
+            if (product is null)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                model.Categories = await GetCategoryOptionsAsync();
+                return View("ProductForm", model);
+            }
+
+            if (model.ImageFile is not null)
+            {
+                product.ImageUrl = await SaveProductImageAsync(model.ImageFile);
+            }
+
+            product.Name = model.Name;
+            product.Description = BuildDescription(model.Description, IsDisabled(product));
+            product.Price = model.Price;
+            product.StockQuantity = model.StockQuantity;
+            product.CategoryId = model.CategoryId;
+
+            await _context.SaveChangesAsync();
+
+            TempData["AdminMessage"] = "Cập nhật sản phẩm thành công.";
+            return RedirectToAction(nameof(Products));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DisableProduct(int id)
+        {
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
+            if (product is null)
+            {
+                return NotFound();
+            }
+
+            if (!IsDisabled(product))
+            {
+                product.Description = BuildDescription(product.Description, disable: true);
+                await _context.SaveChangesAsync();
+                TempData["AdminMessage"] = "Đã tắt sản phẩm.";
+            }
+
+            return RedirectToAction(nameof(Products));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EnableProduct(int id)
+        {
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
+            if (product is null)
+            {
+                return NotFound();
+            }
+
+            if (IsDisabled(product))
+            {
+                product.Description = BuildDescription(product.Description, disable: false);
+                await _context.SaveChangesAsync();
+                TempData["AdminMessage"] = "Đã bật sản phẩm.";
+            }
+
+            return RedirectToAction(nameof(Products));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteProduct(int id)
+        {
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
+            if (product is not null)
+            {
+                _context.Products.Remove(product);
+                await _context.SaveChangesAsync();
+                TempData["AdminMessage"] = "Đã xóa sản phẩm.";
+            }
+
+            return RedirectToAction(nameof(Products));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Categories()
+        {
+            ViewBag.IconOptions = CategoryIconOptions;
+
+            var categories = await _context.Categories
+                .Select(c => new AdminCategoryListItemViewModel
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Description = c.Description,
+                    Icon = c.Icon,
+                    ProductCount = c.Products.Count
+                })
+                .OrderBy(c => c.Name)
+                .ToListAsync();
+
+            var viewModel = new AdminCategoriesViewModel
+            {
+                Categories = categories,
+                NewCategory = new AdminCategoryFormViewModel()
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateCategory(AdminCategoryFormViewModel model)
+        {
+            ViewBag.IconOptions = CategoryIconOptions;
+
+            if (!ModelState.IsValid)
+            {
+                var categories = await _context.Categories
+                    .Select(c => new AdminCategoryListItemViewModel
+                    {
+                        Id = c.Id,
+                        Name = c.Name,
+                        Description = c.Description,
+                        Icon = c.Icon,
+                        ProductCount = c.Products.Count
+                    })
+                    .OrderBy(c => c.Name)
+                    .ToListAsync();
+
+                return View("Categories", new AdminCategoriesViewModel
+                {
+                    Categories = categories,
+                    NewCategory = model
+                });
+            }
+
+            var category = new Category
+            {
+                Name = model.Name,
+                Description = model.Description ?? string.Empty,
+                Icon = NormalizeCategoryIcon(model.Icon),
+                Products = []
+            };
+
+            _context.Categories.Add(category);
+            await _context.SaveChangesAsync();
+
+            TempData["AdminMessage"] = "Tạo danh mục thành công.";
+            return RedirectToAction(nameof(Categories));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditCategory(int id)
+        {
+            ViewBag.IconOptions = CategoryIconOptions;
+
+            var category = await _context.Categories
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (category is null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new AdminCategoryFormViewModel
+            {
+                Id = category.Id,
+                Name = category.Name,
+                Description = category.Description,
+                Icon = category.Icon
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditCategory(AdminCategoryFormViewModel model)
+        {
+            ViewBag.IconOptions = CategoryIconOptions;
+
+            if (!model.Id.HasValue)
+            {
+                return BadRequest();
+            }
+
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == model.Id.Value);
+            if (category is null)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            category.Name = model.Name;
+            category.Description = model.Description ?? string.Empty;
+            category.Icon = NormalizeCategoryIcon(model.Icon);
+
+            await _context.SaveChangesAsync();
+
+            TempData["AdminMessage"] = "Cập nhật danh mục thành công.";
+            return RedirectToAction(nameof(Categories));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteCategory(int id)
+        {
+            var hasProducts = await _context.Products.AnyAsync(p => p.CategoryId == id);
+            if (hasProducts)
+            {
+                TempData["AdminMessage"] = "Không thể xóa danh mục đang có sản phẩm.";
+                return RedirectToAction(nameof(Categories));
+            }
+
+            var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
+            if (category is not null)
+            {
+                _context.Categories.Remove(category);
+                await _context.SaveChangesAsync();
+                TempData["AdminMessage"] = "Đã xóa danh mục.";
+            }
+
+            return RedirectToAction(nameof(Categories));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Orders(string? search = null, string? status = null)
+        {
+            var query = _context.Orders
+                .AsNoTracking()
+                .Include(o => o.Items)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(o =>
+                    o.CustomerEmail.Contains(search) ||
+                    o.RecipientName.Contains(search) ||
+                    o.Id.ToString().Contains(search));
+            }
+
+            if (!string.IsNullOrWhiteSpace(status) && Enum.TryParse<OrderStatus>(status, true, out var parsedStatus))
+            {
+                query = query.Where(o => o.Status == parsedStatus);
+            }
+
+            var orders = await query
+                .OrderByDescending(o => o.CreatedAtUtc)
+                .ToListAsync();
+
+            var viewModel = new AdminOrdersViewModel
+            {
+                Search = search ?? string.Empty,
+                StatusFilter = status ?? string.Empty,
+                TotalOrders = orders.Count,
+                PendingOrders = orders.Count(o => o.Status == OrderStatus.Pending),
+                TotalRevenue = orders.Sum(o => o.TotalAmount),
+                Orders = orders.Select(o => new AdminOrderListItemViewModel
+                {
+                    Id = o.Id,
+                    CustomerEmail = o.CustomerEmail,
+                    RecipientName = o.RecipientName,
+                    CreatedAtUtc = o.CreatedAtUtc,
+                    Status = o.Status,
+                    ItemCount = o.Items.Sum(i => i.Quantity),
+                    TotalAmount = o.TotalAmount
+                }).ToList()
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> OrderDetails(int id)
+        {
+            var order = await _context.Orders
+                .AsNoTracking()
+                .Include(o => o.Items)
+                .FirstOrDefaultAsync(o => o.Id == id);
+
+            if (order is null)
+            {
+                return NotFound();
+            }
+
+            return View(MapOrderDetails(order));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateOrderStatus(int orderId, OrderStatus status)
+        {
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+            if (order is null)
+            {
+                return NotFound();
+            }
+
+            order.Status = status;
+            order.UpdatedAtUtc = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            TempData["AdminMessage"] = "Cập nhật trạng thái đơn hàng thành công.";
+            return RedirectToAction(nameof(OrderDetails), new { id = orderId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateOrderAddress(
+            int orderId,
+            string recipientName,
+            string addressLine1,
+            string? addressLine2,
+            string city,
+            string? stateOrProvince,
+            string? postalCode,
+            string country,
+            string? phoneNumber)
+        {
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+            if (order is null)
+            {
+                return NotFound();
+            }
+
+            if (string.IsNullOrWhiteSpace(recipientName) ||
+                string.IsNullOrWhiteSpace(addressLine1) ||
+                string.IsNullOrWhiteSpace(city) ||
+                string.IsNullOrWhiteSpace(country))
+            {
+                TempData["AdminMessage"] = "Người nhận, địa chỉ dòng 1, thành phố và quốc gia là bắt buộc.";
+                return RedirectToAction(nameof(OrderDetails), new { id = orderId });
+            }
+
+            order.RecipientName = recipientName.Trim();
+            order.AddressLine1 = addressLine1.Trim();
+            order.AddressLine2 = string.IsNullOrWhiteSpace(addressLine2) ? null : addressLine2.Trim();
+            order.City = city.Trim();
+            order.StateOrProvince = string.IsNullOrWhiteSpace(stateOrProvince) ? null : stateOrProvince.Trim();
+            order.PostalCode = string.IsNullOrWhiteSpace(postalCode) ? null : postalCode.Trim();
+            order.Country = country.Trim();
+            order.PhoneNumber = string.IsNullOrWhiteSpace(phoneNumber) ? null : phoneNumber.Trim();
+            order.UpdatedAtUtc = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            TempData["AdminMessage"] = "Cập nhật địa chỉ giao hàng thành công.";
+            return RedirectToAction(nameof(OrderDetails), new { id = orderId });
+        }
+
+        private Task<List<CategoryOptionViewModel>> GetCategoryOptionsAsync()
+        {
+            return _context.Categories
+                .OrderBy(c => c.Name)
+                .Select(c => new CategoryOptionViewModel
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Icon = c.Icon
+                })
+                .ToListAsync();
+        }
+
+        private static bool IsDisabled(Product product)
+        {
+            return (product.Description ?? string.Empty).StartsWith(DisabledPrefix, StringComparison.Ordinal);
+        }
+
+        private static string CleanDescription(string? description)
+        {
+            var value = description ?? string.Empty;
+            return value.StartsWith(DisabledPrefix, StringComparison.Ordinal)
+                ? value[DisabledPrefix.Length..]
+                : value;
+        }
+
+        private static string BuildDescription(string? description, bool disable)
+        {
+            var clean = CleanDescription(description);
+            return disable ? $"{DisabledPrefix}{clean}" : clean;
+        }
+
+        private static string? NormalizeMaterialIcon(string? icon)
+        {
+            if (string.IsNullOrWhiteSpace(icon))
+            {
+                return null;
+            }
+
+            return icon.Trim().Replace(" ", "_").ToLowerInvariant();
+        }
+
+        private static string NormalizeCategoryIcon(string? icon)
+        {
+            var normalized = NormalizeMaterialIcon(icon);
+            if (string.IsNullOrWhiteSpace(normalized))
+            {
+                return "category";
+            }
+
+            return CategoryIconOptions.Contains(normalized, StringComparer.Ordinal) ? normalized : "category";
+        }
+
+        private async Task<string> SaveProductImageAsync(IFormFile imageFile)
+        {
+            var uploadsPath = Path.Combine(_environment.WebRootPath, "uploads", "products");
+            Directory.CreateDirectory(uploadsPath);
+
+            var extension = Path.GetExtension(imageFile.FileName);
+            var safeExtension = string.IsNullOrWhiteSpace(extension) ? ".jpg" : extension;
+            var fileName = $"{Guid.NewGuid():N}{safeExtension}";
+            var filePath = Path.Combine(uploadsPath, fileName);
+
+            await using var stream = new FileStream(filePath, FileMode.Create);
+            await imageFile.CopyToAsync(stream);
+
+            return $"/uploads/products/{fileName}";
+        }
+
+        private static AdminOrderDetailsViewModel MapOrderDetails(Order order)
+        {
+            return new AdminOrderDetailsViewModel
+            {
+                Id = order.Id,
+                CustomerEmail = order.CustomerEmail,
+                RecipientName = order.RecipientName,
+                PhoneNumber = order.PhoneNumber,
+                AddressLine1 = order.AddressLine1,
+                AddressLine2 = order.AddressLine2,
+                City = order.City,
+                StateOrProvince = order.StateOrProvince,
+                PostalCode = order.PostalCode,
+                Country = order.Country,
+                CreatedAtUtc = order.CreatedAtUtc,
+                UpdatedAtUtc = order.UpdatedAtUtc,
+                Status = order.Status,
+                TotalAmount = order.TotalAmount,
+                Items = order.Items.Select(i => new AdminOrderItemViewModel
+                {
+                    ProductId = i.ProductId,
+                    ProductName = i.ProductName,
+                    UnitPrice = i.UnitPrice,
+                    Quantity = i.Quantity,
+                    LineTotal = i.UnitPrice * i.Quantity
+                }).ToList()
+            };
+        }
+    }
+}

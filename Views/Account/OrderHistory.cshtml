@@ -1,0 +1,85 @@
+@model EcommerceApp.ViewModels.Account.OrderHistoryViewModel
+@{
+    ViewData["Title"] = "Lịch sử đơn hàng";
+    Layout = "_Layout";
+    var displayName = User.Identity?.Name ?? "User";
+}
+
+<div class="w-full">
+    <div class="flex flex-col lg:flex-row gap-8">
+        <aside class="w-full lg:w-64 space-y-2">
+            <div class="p-4 mb-6 rounded-xl bg-surface-container-low border-none">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-full overflow-hidden bg-primary-fixed ring-2 ring-primary-container flex items-center justify-center text-primary font-bold">
+                        @displayName[..1].ToUpperInvariant()
+                    </div>
+                    <div>
+                        <p class="font-headline font-bold text-slate-900 leading-tight">@displayName</p>
+                        <p class="text-xs text-slate-500">TechCurator Member</p>
+                    </div>
+                </div>
+            </div>
+            <nav class="space-y-1">
+                <a class="flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-500 hover:bg-orange-50 transition-all group" asp-action="Profile">
+                    <span class="material-symbols-outlined group-hover:text-orange-500">person</span>
+                    <span class="text-sm">Hồ sơ người dùng</span>
+                </a>
+                <a class="flex items-center space-x-3 px-4 py-3 rounded-lg bg-orange-50 text-orange-600 border-r-4 border-orange-600 font-semibold" asp-action="OrderHistory">
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                    <span class="text-sm">Đơn hàng của tôi</span>
+                </a>
+                <a class="flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-500 hover:bg-orange-50 transition-all group" asp-action="ChangePassword">
+                    <span class="material-symbols-outlined group-hover:text-orange-500">lock</span>
+                    <span class="text-sm">Đổi mật khẩu</span>
+                </a>
+                <form asp-action="Logout" method="post" class="block">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-500 hover:bg-orange-50 transition-all group text-left">
+                        <span class="material-symbols-outlined group-hover:text-orange-500">logout</span>
+                        <span class="text-sm">Đăng xuất</span>
+                    </button>
+                </form>
+            </nav>
+        </aside>
+
+        <div class="flex-1 bg-white rounded-2xl p-8 shadow-sm border border-slate-100">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold">Lịch sử đơn hàng</h2>
+                <a asp-action="Profile" class="text-sm font-semibold text-orange-600 hover:underline">Quay lại hồ sơ</a>
+            </div>
+
+            @if (!Model.Orders.Any())
+            {
+                <p class="text-slate-500">Bạn chưa có đơn hàng nào.</p>
+            }
+            else
+            {
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                        <thead>
+                            <tr class="border-b">
+                                <th class="text-left py-3">Mã đơn</th>
+                                <th class="text-left py-3">Ngày tạo</th>
+                                <th class="text-left py-3">Số sản phẩm</th>
+                                <th class="text-left py-3">Tổng tiền</th>
+                                <th class="text-left py-3">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model.Orders)
+                            {
+                                <tr class="border-b border-slate-100">
+                                    <td class="py-3">ORD-@order.Id.ToString("D6")</td>
+                                    <td class="py-3">@order.CreatedAtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td class="py-3">@order.ItemCount</td>
+                                    <td class="py-3">@order.TotalAmount.ToString("N0") đ</td>
+                                    <td class="py-3">@order.Status</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

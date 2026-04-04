@@ -91,9 +91,9 @@
         <div class="flex justify-between items-center px-8 h-16 w-full max-w-7xl mx-auto">
             <a asp-controller="Store" asp-action="Index" class="text-2xl font-black tracking-tighter text-orange-600">TechCurator</a>
             <div class="hidden md:flex space-x-8">
-                <a asp-controller="Store" asp-action="Index" class="text-orange-600 font-bold border-b-2 border-orange-600 text-sm tracking-wide">Products</a>
-                <a asp-controller="Cart" asp-action="Index" class="text-slate-600 font-medium hover:text-orange-500 transition-colors duration-200 text-sm tracking-wide">Cart</a>
-                <a asp-controller="Home" asp-action="Privacy" class="text-slate-600 font-medium hover:text-orange-500 transition-colors duration-200 text-sm tracking-wide">Privacy</a>
+                <a asp-controller="Store" asp-action="Index" class="text-orange-600 font-bold border-b-2 border-orange-600 text-sm tracking-wide">Sản phẩm</a>
+                <a asp-controller="Cart" asp-action="Index" class="text-slate-600 font-medium hover:text-orange-500 transition-colors duration-200 text-sm tracking-wide">Giỏ Hàng</a>
+                <a asp-controller="Home" asp-action="Privacy" class="text-slate-600 font-medium hover:text-orange-500 transition-colors duration-200 text-sm tracking-wide">Bảo Mật</a>
             </div>
             <div class="flex items-center space-x-6">
                 <div class="relative hidden lg:block">
@@ -103,9 +103,23 @@
                 <a asp-controller="Cart" asp-action="Index" class="text-slate-600 hover:text-orange-500 scale-95 active:scale-90 transition-transform">
                     <span class="material-symbols-outlined">shopping_cart</span>
                 </a>
-                <button class="text-slate-600 hover:text-orange-500 scale-95 active:scale-90 transition-transform">
-                    <span class="material-symbols-outlined">account_circle</span>
-                </button>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a asp-controller="Account" asp-action="Profile" class="text-slate-600 hover:text-orange-500 scale-95 active:scale-90 transition-transform" title="Profile">
+                        <span class="material-symbols-outlined">account_circle</span>
+                    </a>
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="inline">
+                        <button type="submit" class="text-slate-600 hover:text-orange-500 scale-95 active:scale-90 transition-transform" title="Logout">
+                            <span class="material-symbols-outlined">logout</span>
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="text-slate-600 hover:text-orange-500 scale-95 active:scale-90 transition-transform" title="Login">
+                        <span class="material-symbols-outlined">account_circle</span>
+                    </a>
+                }
             </div>
         </div>
     </nav>
@@ -151,7 +165,7 @@
                 </ul>
             </div>
             <div class="bg-surface-container-low p-6 rounded-2xl">
-                <h4 class="font-headline font-bold text-sm uppercase tracking-widest text-slate-900 mb-4">Newsletter</h4>
+                <h4 class="font-headline font-bold text-sm uppercase tracking-widest text-slate-900 mb-4">Bản tin</h4>
                 <p class="text-xs text-slate-500 mb-4">Nhận thông báo về các sản phẩm mới nhất và ưu đãi độc quyền.</p>
                 <div class="relative">
                     <input class="w-full text-xs py-3 px-4 rounded-xl border-none focus:ring-1 focus:ring-primary-container bg-white shadow-sm" placeholder="Email của bạn" type="email" />
@@ -162,12 +176,13 @@
             </div>
         </div>
         <div class="max-w-7xl mx-auto px-8 py-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
-            <div>© 2024 TechCurator Vietnam. All rights reserved.</div>
+            <div>© 2024 TechCurator Việt Nam. Đã đăng ký bản quyền.</div>
             <div class="flex space-x-6 mt-4 md:mt-0">
-                <a class="hover:text-slate-900" href="#">Privacy Policy</a>
-                <a class="hover:text-slate-900" href="#">Terms of Service</a>
-                <a class="hover:text-slate-900" href="#">Cookie Settings</a>
+                <a class="hover:text-slate-900" href="#">Chính sách bảo mật</a>
+                <a class="hover:text-slate-900" href="#">Dịch Vụ</a>
+                <a class="hover:text-slate-900" href="#">Bảo mật</a>
             </div>
         </div>
     </footer>
+    @await RenderSectionAsync("Scripts", required: false)
 </body></html>

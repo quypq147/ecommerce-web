@@ -1,0 +1,112 @@
+@model EcommerceApp.ViewModels.Admin.AdminOrdersViewModel
+@using EcommerceApp.Models
+@{
+    string TrangThaiText(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => "Chờ xử lý",
+        OrderStatus.Processing => "Đang xử lý",
+        OrderStatus.Shipped => "Đang giao",
+        OrderStatus.Delivered => "Đã giao",
+        OrderStatus.Cancelled => "Đã hủy",
+        _ => status.ToString()
+    };
+}
+
+<section class="space-y-8">
+    @if (TempData["AdminMessage"] is string message)
+    {
+        <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">@message</div>
+    }
+
+    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+            <h2 class="text-4xl font-black text-on-surface">Quản lý đơn hàng</h2>
+            <p class="mt-2 text-secondary">Theo dõi đơn, xem chi tiết và cập nhật trạng thái xử lý.</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div class="rounded-2xl bg-surface-container-low p-6">
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Tổng đơn hàng</p>
+            <p class="mt-2 text-4xl font-black text-on-surface">@Model.TotalOrders</p>
+        </div>
+        <div class="rounded-2xl bg-surface-container-low p-6">
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Đơn chờ xử lý</p>
+            <p class="mt-2 text-4xl font-black text-on-surface">@Model.PendingOrders</p>
+        </div>
+        <div class="rounded-2xl bg-surface-container-low p-6">
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Doanh thu</p>
+            <p class="mt-2 text-4xl font-black text-on-surface">@Model.TotalRevenue.ToString("N0")đ</p>
+        </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 shadow-sm">
+        <form action="/Admin/Orders" class="mb-5 grid gap-3 md:grid-cols-[1fr_auto_auto_auto]" method="get">
+            <input class="w-full rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm"
+                   name="search"
+                   placeholder="Tìm theo mã đơn, khách hàng, người nhận..."
+                   type="text"
+                   value="@Model.Search" />
+
+            <select class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm"
+                    name="status">
+                <option value="">Tất cả trạng thái</option>
+                @foreach (var status in Enum.GetValues<OrderStatus>())
+                {
+                    var selected = string.Equals(Model.StatusFilter, status.ToString(), StringComparison.OrdinalIgnoreCase);
+                    <option selected="@selected" value="@status">@TrangThaiText(status)</option>
+                }
+            </select>
+
+            <button class="rounded-xl border border-outline-variant/50 px-4 py-3 text-sm font-semibold text-secondary" type="submit">Lọc</button>
+            <a class="rounded-xl border border-outline-variant/50 px-4 py-3 text-sm font-semibold text-secondary" href="/Admin/Orders">Đặt lại</a>
+        </form>
+
+        @if (!Model.Orders.Any())
+        {
+            <div class="rounded-xl border border-dashed border-outline-variant/60 bg-surface-container-low px-6 py-10 text-center text-sm text-secondary">
+                Không tìm thấy đơn hàng.
+            </div>
+        }
+        else
+        {
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-surface-container-high text-left text-[11px] uppercase tracking-[0.15em] text-secondary">
+                            <th class="pb-3">Đơn hàng</th>
+                            <th class="pb-3">Khách hàng</th>
+                            <th class="pb-3">Ngày</th>
+                            <th class="pb-3">Sản phẩm</th>
+                            <th class="pb-3">Trạng thái</th>
+                            <th class="pb-3">Số tiền</th>
+                            <th class="pb-3 text-right">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.Orders)
+                        {
+                            <tr class="border-b border-surface-container-low">
+                                <td class="py-4 font-semibold text-on-surface">#@order.Id</td>
+                                <td class="py-4">
+                                    <p class="font-semibold text-on-surface">@order.RecipientName</p>
+                                    <p class="text-xs text-secondary">@order.CustomerEmail</p>
+                                </td>
+                                <td class="py-4 text-secondary">@order.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                                <td class="py-4 text-on-surface">@order.ItemCount</td>
+                                <td class="py-4">
+                                    <span class="rounded-full bg-surface-container-low px-3 py-1 text-xs font-semibold text-secondary">@TrangThaiText(order.Status)</span>
+                                </td>
+                                <td class="py-4 font-semibold text-on-surface">@order.TotalAmount.ToString("N0")đ</td>
+                                <td class="py-4 text-right">
+                                    <a class="rounded-lg border border-outline-variant/50 px-3 py-2 text-xs font-semibold text-secondary"
+                                       href="/Admin/OrderDetails/@order.Id">Xem chi tiết</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>

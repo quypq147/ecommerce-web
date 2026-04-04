@@ -1,0 +1,49 @@
+﻿@model EcommerceApp.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<form method="post">
+    <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+
+    <div class="space-y-6">
+        <div>
+            <h2 class="text-2xl font-bold tracking-tight text-on-surface mb-2">Mừng bạn trở lại</h2>
+            <p class="text-secondary text-sm">Vui lòng nhập thông tin để truy cập tài khoản của bạn.</p>
+        </div>
+
+        <div asp-validation-summary="All" class="text-sm text-red-600"></div>
+
+        <div class="space-y-4">
+            <div class="space-y-1.5">
+                <label asp-for="Email" class="text-[0.75rem] font-semibold text-secondary ml-1"></label>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">person</span>
+                    <input asp-for="Email" placeholder="example@email.com" class="w-full pl-10 pr-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:text-slate-400" />
+                </div>
+                <span asp-validation-for="Email" class="text-xs text-red-600"></span>
+            </div>
+
+            <div class="space-y-1.5">
+                <div class="flex justify-between items-center px-1">
+                    <label asp-for="Password" class="text-[0.75rem] font-semibold text-secondary"></label>
+                    <a asp-action="ForgotPassword" class="text-[0.75rem] font-bold text-primary hover:underline">Quên mật khẩu?</a>
+                </div>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">lock</span>
+                    <input asp-for="Password" placeholder="••••••••" class="w-full pl-10 pr-4 py-3 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 transition-all text-on-surface placeholder:text-slate-400" />
+                </div>
+                <span asp-validation-for="Password" class="text-xs text-red-600"></span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 px-1">
+            <input asp-for="RememberMe" class="w-4 h-4 rounded text-primary focus:ring-primary border-slate-300" />
+            <label asp-for="RememberMe" class="text-sm text-secondary"></label>
+        </div>
+
+        <button type="submit" class="w-full py-4 bg-gradient-to-r from-primary to-primary-container text-white font-bold rounded-xl shadow-lg shadow-primary/20 active:scale-95 transition-transform">
+            Đăng nhập ngay
+        </button>
+    </div>
+</form>

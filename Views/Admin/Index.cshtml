@@ -1,0 +1,90 @@
+﻿@model EcommerceApp.ViewModels.Admin.AdminOverviewViewModel
+@using EcommerceApp.Models
+@{
+    string TrangThaiText(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => "Chờ xử lý",
+        OrderStatus.Processing => "Đang xử lý",
+        OrderStatus.Shipped => "Đang giao",
+        OrderStatus.Delivered => "Đã giao",
+        OrderStatus.Cancelled => "Đã hủy",
+        _ => status.ToString()
+    };
+}
+
+<section class="space-y-8">
+    <div>
+        <h2 class="text-4xl font-black text-on-surface">Trang quản trị</h2>
+        <p class="mt-2 text-secondary">Tổng quan hệ thống và đơn hàng mới nhất.</p>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div class="rounded-2xl bg-white p-6 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-[0.15em] text-secondary">Doanh thu</p>
+            <p class="mt-2 text-3xl font-black text-on-surface">@Model.TotalRevenue.ToString("N0")đ</p>
+        </div>
+        <div class="rounded-2xl bg-white p-6 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-[0.15em] text-secondary">Đơn hàng</p>
+            <p class="mt-2 text-3xl font-black text-on-surface">@Model.TotalOrders</p>
+        </div>
+        <div class="rounded-2xl bg-white p-6 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-[0.15em] text-secondary">Chờ xử lý</p>
+            <p class="mt-2 text-3xl font-black text-orange-600">@Model.PendingOrders</p>
+        </div>
+        <div class="rounded-2xl bg-white p-6 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-[0.15em] text-secondary">Danh mục/Sản phẩm</p>
+            <p class="mt-2 text-3xl font-black text-on-surface">@Model.TotalCategories / @Model.TotalProducts</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <div class="rounded-2xl bg-white p-6 shadow-sm lg:col-span-8">
+            <div class="mb-4 flex items-center justify-between">
+                <h3 class="text-xl font-black text-on-surface">Đơn hàng gần đây</h3>
+                <a class="text-sm font-semibold text-primary" href="/Admin/Orders">Xem tất cả</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-surface-container-high text-left text-[11px] uppercase tracking-[0.15em] text-secondary">
+                            <th class="pb-3">Mã</th>
+                            <th class="pb-3">Khách hàng</th>
+                            <th class="pb-3">Ngày</th>
+                            <th class="pb-3">Trạng thái</th>
+                            <th class="pb-3 text-right">Tổng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.RecentOrders)
+                        {
+                            <tr class="border-b border-surface-container-low">
+                                <td class="py-3 font-semibold text-primary">#ORD-@order.Id.ToString("D6")</td>
+                                <td class="py-3 text-on-surface">@order.RecipientName</td>
+                                <td class="py-3 text-secondary">@order.CreatedAtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="py-3 text-secondary">@TrangThaiText(order.Status)</td>
+                                <td class="py-3 text-right font-semibold text-on-surface">@order.TotalAmount.ToString("N0")đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="rounded-2xl bg-primary-container p-6 lg:col-span-4">
+            <h3 class="text-xl font-black text-on-primary-container">Sắp hết hàng</h3>
+            <div class="mt-4 space-y-3">
+                @foreach (var product in Model.LowStockProducts)
+                {
+                    <div class="rounded-lg bg-white/50 px-3 py-2">
+                        <p class="text-sm font-semibold text-on-surface">@product.Name</p>
+                        <p class="inline-flex items-center gap-1 text-xs text-secondary">
+                            <span class="material-symbols-outlined text-sm">@(string.IsNullOrWhiteSpace(product.Category?.Icon) ? "category" : product.Category!.Icon)</span>
+                            <span>@product.Category?.Name • @product.StockQuantity sản phẩm</span>
+                        </p>
+                    </div>
+                }
+            </div>
+            <a href="/Admin/Products" class="mt-5 inline-flex rounded-lg bg-white/70 px-4 py-2 text-xs font-bold text-on-surface">Mở quản lý sản phẩm</a>
+        </div>
+    </div>
+</section>

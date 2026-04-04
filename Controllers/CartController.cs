@@ -1,4 +1,4 @@
-using EcommerceApp.Models;
+using EcommerceApp.ViewModels;
 using EcommerceApp.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -57,8 +57,6 @@ public class CartController : Controller
     [ValidateAntiForgeryToken]
     public IActionResult Checkout()
     {
-        _cartService.Clear();
-        TempData["Message"] = "Order placed successfully.";
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction("Checkout", "Order");
     }
 }

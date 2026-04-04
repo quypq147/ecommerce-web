@@ -1,0 +1,116 @@
+@model EcommerceApp.ViewModels.Admin.AdminOrderDetailsViewModel
+@using EcommerceApp.Models
+@{
+    string TrangThaiText(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => "Chờ xử lý",
+        OrderStatus.Processing => "Đang xử lý",
+        OrderStatus.Shipped => "Đang giao",
+        OrderStatus.Delivered => "Đã giao",
+        OrderStatus.Cancelled => "Đã hủy",
+        _ => status.ToString()
+    };
+}
+
+<section class="space-y-8">
+    @if (TempData["AdminMessage"] is string message)
+    {
+        <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">@message</div>
+    }
+
+    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+            <h2 class="text-4xl font-black text-on-surface">Đơn hàng #@Model.Id</h2>
+            <p class="mt-2 text-secondary">Tạo lúc @Model.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</p>
+        </div>
+        <a class="inline-flex items-center justify-center rounded-xl border border-outline-variant/50 px-4 py-3 text-sm font-semibold text-secondary"
+           href="/Admin/Orders">Quay lại đơn hàng</a>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div class="rounded-2xl bg-surface-container-low p-6">
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Trạng thái</p>
+            <p class="mt-2 text-2xl font-black text-on-surface">@TrangThaiText(Model.Status)</p>
+            <p class="mt-2 text-xs text-secondary">Cập nhật lần cuối: @(Model.UpdatedAtUtc?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "-" )</p>
+        </div>
+        <div class="rounded-2xl bg-surface-container-low p-6">
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Khách hàng</p>
+            <p class="mt-2 text-lg font-semibold text-on-surface">@Model.RecipientName</p>
+            <p class="text-sm text-secondary">@Model.CustomerEmail</p>
+        </div>
+        <div class="rounded-2xl bg-surface-container-low p-6">
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Tổng tiền</p>
+            <p class="mt-2 text-2xl font-black text-on-surface">@Model.TotalAmount.ToString("N0")đ</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <div class="rounded-2xl bg-white p-6 shadow-sm">
+            <h3 class="text-lg font-black text-on-surface">Cập nhật trạng thái</h3>
+            <form action="/Admin/UpdateOrderStatus" class="mt-4 space-y-4" method="post">
+                @Html.AntiForgeryToken()
+                <input name="orderId" type="hidden" value="@Model.Id" />
+
+                <select class="w-full rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm"
+                        name="status">
+                    @foreach (var status in Enum.GetValues<OrderStatus>())
+                    {
+                        <option selected="@(status == Model.Status)" value="@status">@TrangThaiText(status)</option>
+                    }
+                </select>
+
+                <button class="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white hover:opacity-90" type="submit">
+                    Lưu trạng thái
+                </button>
+            </form>
+        </div>
+
+        <div class="rounded-2xl bg-white p-6 shadow-sm">
+            <h3 class="text-lg font-black text-on-surface">Địa chỉ giao hàng</h3>
+            <form action="/Admin/UpdateOrderAddress" class="mt-4 grid gap-3" method="post">
+                @Html.AntiForgeryToken()
+                <input name="orderId" type="hidden" value="@Model.Id" />
+
+                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="recipientName" placeholder="Tên người nhận" value="@Model.RecipientName" />
+                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="phoneNumber" placeholder="Điện thoại" value="@Model.PhoneNumber" />
+                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="addressLine1" placeholder="Địa chỉ dòng 1" value="@Model.AddressLine1" />
+                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="addressLine2" placeholder="Địa chỉ dòng 2" value="@Model.AddressLine2" />
+                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="city" placeholder="Thành phố" value="@Model.City" />
+                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="stateOrProvince" placeholder="Tỉnh / Bang" value="@Model.StateOrProvince" />
+                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="postalCode" placeholder="Mã bưu chính" value="@Model.PostalCode" />
+                <input class="rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm" name="country" placeholder="Quốc gia" value="@Model.Country" />
+
+                <button class="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white hover:opacity-90" type="submit">
+                    Lưu địa chỉ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 shadow-sm">
+        <h3 class="text-lg font-black text-on-surface">Sản phẩm trong đơn</h3>
+        <div class="mt-4 overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead>
+                    <tr class="border-b border-surface-container-high text-left text-[11px] uppercase tracking-[0.15em] text-secondary">
+                        <th class="pb-3">Sản phẩm</th>
+                        <th class="pb-3">Đơn giá</th>
+                        <th class="pb-3">Số lượng</th>
+                        <th class="pb-3">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr class="border-b border-surface-container-low">
+                            <td class="py-4 font-semibold text-on-surface">@item.ProductName</td>
+                            <td class="py-4 text-on-surface">@item.UnitPrice.ToString("N0")đ</td>
+                            <td class="py-4 text-on-surface">@item.Quantity</td>
+                            <td class="py-4 font-semibold text-on-surface">@item.LineTotal.ToString("N0")đ</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
