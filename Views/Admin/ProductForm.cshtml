@@ -21,7 +21,7 @@
         </div>
     }
 
-    <form action="@actionUrl" class="space-y-5" method="post">
+    <form action="@actionUrl" class="space-y-5" enctype="multipart/form-data" method="post">
         @Html.AntiForgeryToken()
         @if (isEdit)
         {
@@ -50,8 +50,15 @@
         </div>
 
         <div>
-            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">URL hình ảnh</label>
-            <input class="w-full rounded-xl border border-outline-variant/50 px-4 py-3" name="ImageUrl" type="text" value="@Model.ImageUrl" />
+            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Ảnh sản phẩm</label>
+            <input accept="image/*" class="w-full rounded-xl border border-outline-variant/50 px-4 py-3" name="ImageFile" type="file" />
+            @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+            {
+                <div class="mt-3 inline-flex items-center gap-3 rounded-xl bg-surface-container-low px-3 py-2">
+                    <img src="@Model.ImageUrl" alt="@Model.Name" class="h-12 w-12 rounded-lg object-cover" />
+                    <span class="text-xs text-secondary">Giữ ảnh hiện tại nếu không chọn ảnh mới.</span>
+                </div>
+            }
         </div>
 
         <div>
@@ -60,13 +67,16 @@
                 <option value="">Chọn danh mục</option>
                 @foreach (var category in Model.Categories)
                 {
+                    var categoryLabel = string.IsNullOrWhiteSpace(category.Icon)
+                        ? category.Name
+                        : $"{category.Icon} • {category.Name}";
                     if (category.Id == Model.CategoryId)
                     {
-                        <option selected="selected" value="@category.Id">@category.Name</option>
+                        <option selected="selected" value="@category.Id">@categoryLabel</option>
                     }
                     else
                     {
-                        <option value="@category.Id">@category.Name</option>
+                        <option value="@category.Id">@categoryLabel</option>
                     }
                 }
             </select>

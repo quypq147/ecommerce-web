@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace EcommerceApp.ViewModels.Admin
 {
@@ -20,6 +21,9 @@ namespace EcommerceApp.ViewModels.Admin
         [StringLength(1000)]
         public string? ImageUrl { get; set; }
 
+        [Display(Name = "Ảnh sản phẩm")]
+        public IFormFile? ImageFile { get; set; }
+
         [Range(0, int.MaxValue)]
         [Display(Name = "Stock")]
         public int StockQuantity { get; set; }
@@ -34,5 +38,6 @@ namespace EcommerceApp.ViewModels.Admin
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public string? Icon { get; set; }
     }
 }

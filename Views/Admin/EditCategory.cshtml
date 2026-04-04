@@ -1,4 +1,7 @@
 @model EcommerceApp.ViewModels.Admin.AdminCategoryFormViewModel
+@{
+    var iconOptions = ViewBag.IconOptions as IReadOnlyList<string> ?? [];
+}
 
 <section class="mx-auto max-w-2xl rounded-2xl bg-white p-8 shadow-sm">
     <div class="mb-8 flex items-center justify-between">
@@ -30,6 +33,61 @@
             <textarea class="w-full rounded-xl border border-outline-variant/50 px-4 py-3" name="Description" rows="4">@Model.Description</textarea>
         </div>
 
+        <div>
+            <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Biểu tượng Material</label>
+            <div id="edit-icon-picker" class="relative">
+                <input id="edit-category-icon" name="Icon" type="hidden" value="@(string.IsNullOrWhiteSpace(Model.Icon) ? "category" : Model.Icon)" />
+                <button id="edit-icon-trigger" type="button" class="flex w-full items-center justify-between rounded-xl border border-outline-variant/50 px-4 py-3 text-left">
+                    <span class="inline-flex items-center gap-2">
+                        <span id="edit-category-icon-preview" class="material-symbols-outlined">@(string.IsNullOrWhiteSpace(Model.Icon) ? "category" : Model.Icon)</span>
+                        <span id="edit-category-icon-label" class="text-sm">@(string.IsNullOrWhiteSpace(Model.Icon) ? "category" : Model.Icon)</span>
+                    </span>
+                    <span class="material-symbols-outlined text-secondary">expand_more</span>
+                </button>
+                <div id="edit-icon-menu" class="absolute z-20 mt-2 hidden max-h-60 w-full overflow-y-auto rounded-xl border border-outline-variant/50 bg-white p-1 shadow-lg">
+                    @foreach (var icon in iconOptions)
+                    {
+                        <button type="button" data-icon="@icon" class="icon-option flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-surface-container-low">
+                            <span class="material-symbols-outlined">@icon</span>
+                            <span>@icon</span>
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
         <button class="inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white" type="submit">Lưu danh mục</button>
     </form>
 </section>
+
+@section Scripts {
+    <script>
+        (() => {
+            const picker = document.getElementById('edit-icon-picker');
+            const trigger = document.getElementById('edit-icon-trigger');
+            const menu = document.getElementById('edit-icon-menu');
+            const hidden = document.getElementById('edit-category-icon');
+            const iconPreview = document.getElementById('edit-category-icon-preview');
+            const iconLabel = document.getElementById('edit-category-icon-label');
+            if (!picker || !trigger || !menu || !hidden || !iconPreview || !iconLabel) return;
+
+            trigger.addEventListener('click', () => menu.classList.toggle('hidden'));
+
+            menu.querySelectorAll('.icon-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const icon = option.dataset.icon || 'category';
+                    hidden.value = icon;
+                    iconPreview.textContent = icon;
+                    iconLabel.textContent = icon;
+                    menu.classList.add('hidden');
+                });
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!picker.contains(event.target)) {
+                    menu.classList.add('hidden');
+                }
+            });
+        })();
+    </script>
+}

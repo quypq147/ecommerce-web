@@ -1,4 +1,7 @@
 @model EcommerceApp.ViewModels.Admin.AdminCategoriesViewModel
+@{
+    var iconOptions = ViewBag.IconOptions as IReadOnlyList<string> ?? [];
+}
 
 <section class="space-y-8">
     @if (TempData["AdminMessage"] is string message)
@@ -16,11 +19,32 @@
 
     <div class="rounded-2xl bg-white p-6 shadow-sm">
         <h3 class="text-lg font-black text-on-surface">Thêm danh mục</h3>
-        <form action="/Admin/CreateCategory" class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3" method="post">
+        <form action="/Admin/CreateCategory" class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-4" method="post">
             @Html.AntiForgeryToken()
-            <input class="rounded-xl border border-outline-variant/50 px-4 py-3 md:col-span-1" name="Name" placeholder="Tên danh mục" type="text" value="@Model.NewCategory.Name" />
-            <input class="rounded-xl border border-outline-variant/50 px-4 py-3 md:col-span-1" name="Description" placeholder="Mô tả" type="text" value="@Model.NewCategory.Description" />
-            <button class="rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white md:col-span-1" type="submit">Tạo danh mục</button>
+            <input class="rounded-xl border border-outline-variant/50 px-4 py-3" name="Name" placeholder="Tên danh mục" type="text" value="@Model.NewCategory.Name" />
+
+            <div id="new-icon-picker" class="relative">
+                <input id="new-category-icon" name="Icon" type="hidden" value="@(string.IsNullOrWhiteSpace(Model.NewCategory.Icon) ? "category" : Model.NewCategory.Icon)" />
+                <button id="new-icon-trigger" type="button" class="flex w-full items-center justify-between rounded-xl border border-outline-variant/50 px-4 py-3 text-left">
+                    <span class="inline-flex items-center gap-2">
+                        <span id="new-category-icon-preview" class="material-symbols-outlined">@(string.IsNullOrWhiteSpace(Model.NewCategory.Icon) ? "category" : Model.NewCategory.Icon)</span>
+                        <span id="new-category-icon-label" class="text-sm">@(string.IsNullOrWhiteSpace(Model.NewCategory.Icon) ? "category" : Model.NewCategory.Icon)</span>
+                    </span>
+                    <span class="material-symbols-outlined text-secondary">expand_more</span>
+                </button>
+                <div id="new-icon-menu" class="absolute z-20 mt-2 hidden max-h-60 w-full overflow-y-auto rounded-xl border border-outline-variant/50 bg-white p-1 shadow-lg">
+                    @foreach (var icon in iconOptions)
+                    {
+                        <button type="button" data-icon="@icon" class="icon-option flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm hover:bg-surface-container-low">
+                            <span class="material-symbols-outlined">@icon</span>
+                            <span>@icon</span>
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <input class="rounded-xl border border-outline-variant/50 px-4 py-3" name="Description" placeholder="Mô tả" type="text" value="@Model.NewCategory.Description" />
+            <button class="rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white" type="submit">Tạo danh mục</button>
         </form>
     </div>
 
@@ -29,6 +53,7 @@
             <table class="min-w-full text-sm">
                 <thead>
                     <tr class="border-b border-surface-container-high text-left text-[11px] uppercase tracking-[0.15em] text-secondary">
+                        <th class="pb-3">Biểu tượng</th>
                         <th class="pb-3">Tên</th>
                         <th class="pb-3">Mô tả</th>
                         <th class="pb-3">Sản phẩm</th>
@@ -39,6 +64,9 @@
                     @foreach (var category in Model.Categories)
                     {
                         <tr class="border-b border-surface-container-low">
+                            <td class="py-4 text-on-surface">
+                                <span class="material-symbols-outlined align-middle text-secondary">@(string.IsNullOrWhiteSpace(category.Icon) ? "category" : category.Icon)</span>
+                            </td>
                             <td class="py-4 font-semibold text-on-surface">@category.Name</td>
                             <td class="py-4 text-secondary">@category.Description</td>
                             <td class="py-4 text-on-surface">@category.ProductCount</td>
@@ -59,3 +87,35 @@
         </div>
     </div>
 </section>
+
+@section Scripts {
+    <script>
+        (() => {
+            const picker = document.getElementById('new-icon-picker');
+            const trigger = document.getElementById('new-icon-trigger');
+            const menu = document.getElementById('new-icon-menu');
+            const hidden = document.getElementById('new-category-icon');
+            const iconPreview = document.getElementById('new-category-icon-preview');
+            const iconLabel = document.getElementById('new-category-icon-label');
+            if (!picker || !trigger || !menu || !hidden || !iconPreview || !iconLabel) return;
+
+            trigger.addEventListener('click', () => menu.classList.toggle('hidden'));
+
+            menu.querySelectorAll('.icon-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const icon = option.dataset.icon || 'category';
+                    hidden.value = icon;
+                    iconPreview.textContent = icon;
+                    iconLabel.textContent = icon;
+                    menu.classList.add('hidden');
+                });
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!picker.contains(event.target)) {
+                    menu.classList.add('hidden');
+                }
+            });
+        })();
+    </script>
+}

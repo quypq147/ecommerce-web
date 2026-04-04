@@ -4,6 +4,7 @@ using EcommerceApp.ViewModels.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace EcommerceApp.Controllers
 {
@@ -11,11 +12,29 @@ namespace EcommerceApp.Controllers
     public class AdminController : Controller
     {
         private const string DisabledPrefix = "[DISABLED] ";
-        private readonly ApplicationDbContext _context;
+        private static readonly string[] CategoryIconOptions =
+        [
+            "category",
+            "laptop_mac",
+            "desktop_windows",
+            "smartphone",
+            "headphones",
+            "mouse",
+            "keyboard",
+            "memory",
+            "developer_board",
+            "videogame_asset",
+            "watch",
+            "photo_camera"
+        ];
 
-        public AdminController(ApplicationDbContext context)
+        private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _environment;
+
+        public AdminController(ApplicationDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
         [HttpGet]
@@ -70,18 +89,25 @@ namespace EcommerceApp.Controllers
                 ModelState.AddModelError(nameof(model.CategoryId), "Please select a valid category.");
             }
 
+            if (model.ImageFile is null)
+            {
+                ModelState.AddModelError(nameof(model.ImageFile), "Vui lòng chọn ảnh sản phẩm.");
+            }
+
             if (!ModelState.IsValid)
             {
                 model.Categories = await GetCategoryOptionsAsync();
                 return View("ProductForm", model);
             }
 
+            var imageUrl = await SaveProductImageAsync(model.ImageFile!);
+
             var product = new Product
             {
                 Name = model.Name,
                 Description = BuildDescription(model.Description, disable: false),
                 Price = model.Price,
-                ImageUrl = model.ImageUrl ?? string.Empty,
+                ImageUrl = imageUrl,
                 StockQuantity = model.StockQuantity,
                 CategoryId = model.CategoryId
             };
@@ -146,10 +172,14 @@ namespace EcommerceApp.Controllers
                 return View("ProductForm", model);
             }
 
+            if (model.ImageFile is not null)
+            {
+                product.ImageUrl = await SaveProductImageAsync(model.ImageFile);
+            }
+
             product.Name = model.Name;
             product.Description = BuildDescription(model.Description, IsDisabled(product));
             product.Price = model.Price;
-            product.ImageUrl = model.ImageUrl ?? string.Empty;
             product.StockQuantity = model.StockQuantity;
             product.CategoryId = model.CategoryId;
 
@@ -217,12 +247,15 @@ namespace EcommerceApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Categories()
         {
+            ViewBag.IconOptions = CategoryIconOptions;
+
             var categories = await _context.Categories
                 .Select(c => new AdminCategoryListItemViewModel
                 {
                     Id = c.Id,
                     Name = c.Name,
                     Description = c.Description,
+                    Icon = c.Icon,
                     ProductCount = c.Products.Count
                 })
                 .OrderBy(c => c.Name)
@@ -241,6 +274,8 @@ namespace EcommerceApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCategory(AdminCategoryFormViewModel model)
         {
+            ViewBag.IconOptions = CategoryIconOptions;
+
             if (!ModelState.IsValid)
             {
                 var categories = await _context.Categories
@@ -249,6 +284,7 @@ namespace EcommerceApp.Controllers
                         Id = c.Id,
                         Name = c.Name,
                         Description = c.Description,
+                        Icon = c.Icon,
                         ProductCount = c.Products.Count
                     })
                     .OrderBy(c => c.Name)
@@ -265,6 +301,7 @@ namespace EcommerceApp.Controllers
             {
                 Name = model.Name,
                 Description = model.Description ?? string.Empty,
+                Icon = NormalizeCategoryIcon(model.Icon),
                 Products = []
             };
 
@@ -278,6 +315,8 @@ namespace EcommerceApp.Controllers
         [HttpGet]
         public async Task<IActionResult> EditCategory(int id)
         {
+            ViewBag.IconOptions = CategoryIconOptions;
+
             var category = await _context.Categories
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
@@ -291,7 +330,8 @@ namespace EcommerceApp.Controllers
             {
                 Id = category.Id,
                 Name = category.Name,
-                Description = category.Description
+                Description = category.Description,
+                Icon = category.Icon
             };
 
             return View(viewModel);
@@ -301,6 +341,8 @@ namespace EcommerceApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditCategory(AdminCategoryFormViewModel model)
         {
+            ViewBag.IconOptions = CategoryIconOptions;
+
             if (!model.Id.HasValue)
             {
                 return BadRequest();
@@ -319,6 +361,7 @@ namespace EcommerceApp.Controllers
 
             category.Name = model.Name;
             category.Description = model.Description ?? string.Empty;
+            category.Icon = NormalizeCategoryIcon(model.Icon);
 
             await _context.SaveChangesAsync();
 
@@ -480,7 +523,8 @@ namespace EcommerceApp.Controllers
                 .Select(c => new CategoryOptionViewModel
                 {
                     Id = c.Id,
-                    Name = c.Name
+                    Name = c.Name,
+                    Icon = c.Icon
                 })
                 .ToListAsync();
         }
@@ -502,6 +546,43 @@ namespace EcommerceApp.Controllers
         {
             var clean = CleanDescription(description);
             return disable ? $"{DisabledPrefix}{clean}" : clean;
+        }
+
+        private static string? NormalizeMaterialIcon(string? icon)
+        {
+            if (string.IsNullOrWhiteSpace(icon))
+            {
+                return null;
+            }
+
+            return icon.Trim().Replace(" ", "_").ToLowerInvariant();
+        }
+
+        private static string NormalizeCategoryIcon(string? icon)
+        {
+            var normalized = NormalizeMaterialIcon(icon);
+            if (string.IsNullOrWhiteSpace(normalized))
+            {
+                return "category";
+            }
+
+            return CategoryIconOptions.Contains(normalized, StringComparer.Ordinal) ? normalized : "category";
+        }
+
+        private async Task<string> SaveProductImageAsync(IFormFile imageFile)
+        {
+            var uploadsPath = Path.Combine(_environment.WebRootPath, "uploads", "products");
+            Directory.CreateDirectory(uploadsPath);
+
+            var extension = Path.GetExtension(imageFile.FileName);
+            var safeExtension = string.IsNullOrWhiteSpace(extension) ? ".jpg" : extension;
+            var fileName = $"{Guid.NewGuid():N}{safeExtension}";
+            var filePath = Path.Combine(uploadsPath, fileName);
+
+            await using var stream = new FileStream(filePath, FileMode.Create);
+            await imageFile.CopyToAsync(stream);
+
+            return $"/uploads/products/{fileName}";
         }
 
         private static AdminOrderDetailsViewModel MapOrderDetails(Order order)
