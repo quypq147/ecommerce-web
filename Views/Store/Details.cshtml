@@ -15,10 +15,16 @@
             <div class="mt-6 text-2xl font-bold text-slate-900">@Model.Price.ToString("C")</div>
             <div class="mt-2 text-sm text-slate-500">In stock: @Model.StockQuantity</div>
 
-            <form asp-action="AddToCart" asp-route-id="@Model.Id" method="post" class="mt-6">
+            <form asp-action="AddToCart" asp-route-id="@Model.Id" method="post" class="mt-6 flex gap-2">
                 @Html.AntiForgeryToken()
                 <button type="submit" class="rounded-lg bg-orange-600 px-4 py-2 font-semibold text-white">Add to cart</button>
+                <a asp-action="Reviews" asp-route-id="@Model.Id" class="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white no-underline hover:no-underline">Write a Review</a>
             </form>
+
+            @if (TempData["ReviewMessage"] != null)
+            {
+                <div class="alert alert-success mt-3">@TempData["ReviewMessage"]</div>
+            }
         </div>
     </div>
 </div>
