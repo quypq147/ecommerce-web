@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "Thanh toán thành công";
+}
+
+<div class="flex min-h-[60vh] items-center justify-center">
+    <div class="w-full max-w-2xl rounded-2xl bg-gray-200 p-12 text-center shadow-sm">
+        <div class="mb-6 flex justify-center">
+            <div class="rounded-full border-2 border-slate-800 p-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-12 w-12 text-slate-800">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+            </div>
+        </div>
+
+        <h1 class="mb-4 text-3xl font-bold text-slate-900">
+            Cảm ơn bạn đã chọn cửa hàng của chúng tôi
+        </h1>
+
+        <p class="mb-8 text-lg text-slate-600">
+            Mã đơn của bạn là : <span class="font-mono font-bold text-slate-900">CODE#@Guid.NewGuid().ToString().Substring(0, 8).ToUpper()</span>
+        </p>
+
+        <div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <a asp-controller="Store" asp-action="Index"
+               class="w-full rounded-lg bg-orange-500 px-8 py-3 font-semibold text-white transition hover:bg-orange-600 sm:w-auto">
+                Xem chi tiết
+            </a>
+
+            <a asp-controller="Home" asp-action="Index"
+               class="w-full rounded-lg bg-black px-8 py-3 font-semibold text-white transition hover:bg-gray-800 sm:w-auto">
+                Quay lại trang chủ
+            </a>
+        </div>
+    </div>
+</div>

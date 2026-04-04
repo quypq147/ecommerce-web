@@ -1,4 +1,4 @@
-@model EcommerceApp.Models.CartViewModel
+@model EcommerceApp.ViewModels.CartViewModel
 @{
     ViewData["Title"] = "Cart";
 }
@@ -64,9 +64,10 @@
             <div class="text-2xl font-bold text-slate-900">@Model.Total.ToString("C")</div>
         </div>
 
-        <form asp-action="Checkout" method="post" class="text-right">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="rounded-lg bg-orange-600 px-5 py-2 font-semibold text-white">Place order</button>
+        <form asp-controller="Checkout" asp-action="Index" method="get" class="text-right">
+            <button type="submit" class="rounded-lg bg-orange-600 px-5 py-2 font-semibold text-white">
+                Place order
+            </button>
         </form>
     }
 </div>
