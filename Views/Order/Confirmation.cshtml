@@ -253,7 +253,7 @@
             <h3 class="section-title">Order Summary</h3>
             <div class="info-row">
                 <span class="info-label">Order Date:</span>
-                <span class="info-value">@Model.OrderDate.ToString("MMMM dd, yyyy - HH:mm")</span>
+                <span class="info-value">@Model.CreatedAtUtc.ToLocalTime().ToString("MMMM dd, yyyy - HH:mm")</span>
             </div>
             <div class="info-row">
                 <span class="info-label">Status:</span>
@@ -270,7 +270,7 @@
                     <h6>Delivery Information</h6>
                     <div class="info-row">
                         <span class="info-label">Recipient Name:</span>
-                        <span class="info-value">@Model.CustomerName</span>
+                        <span class="info-value">@Model.RecipientName</span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Phone:</span>
@@ -286,7 +286,7 @@
                     </div>
                     <div class="info-row">
                         <span class="info-label">Shipping Address:</span>
-                        <span class="info-value">@Model.ShippingAddress</span>
+                        <span class="info-value">@Model.AddressLine1</span>
                     </div>
                 </div>
             </div>

@@ -105,6 +105,9 @@
                 </a>
                 @if (User.Identity?.IsAuthenticated == true)
                 {
+                    <a asp-controller="Account" asp-action="Profile" class="text-slate-600 hover:text-orange-500 scale-95 active:scale-90 transition-transform" title="Profile">
+                        <span class="material-symbols-outlined">account_circle</span>
+                    </a>
                     <form asp-controller="Account" asp-action="Logout" method="post" class="inline">
                         <button type="submit" class="text-slate-600 hover:text-orange-500 scale-95 active:scale-90 transition-transform" title="Logout">
                             <span class="material-symbols-outlined">logout</span>

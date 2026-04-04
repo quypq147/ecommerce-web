@@ -14,9 +14,6 @@ namespace EcommerceApp.Models
         public Product Product { get; set; }
 
         public int Quantity { get; set; }
-        public Order Order { get; set; } = null!;
-
-        public int ProductId { get; set; }
 
         [Required]
         [StringLength(150)]
@@ -27,7 +24,5 @@ namespace EcommerceApp.Models
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal LineTotal => UnitPrice * Quantity;
-        [Range(1, int.MaxValue)]
-        public int Quantity { get; set; }
     }
 }
