@@ -39,8 +39,11 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    var dbContext = services.GetRequiredService<ApplicationDbContext>();
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+
+    await dbContext.Database.MigrateAsync();
 
     var roles = new[] { AppRoles.Buyer, AppRoles.Admin, AppRoles.Staff };
     foreach (var role in roles)

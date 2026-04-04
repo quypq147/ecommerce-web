@@ -1,6 +1,10 @@
 using EcommerceApp.Models;
+using EcommerceApp.Data;
 using EcommerceApp.Services;
+using EcommerceApp.ViewModels;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace EcommerceApp.Controllers;
 
@@ -8,11 +12,19 @@ public class OrderController : Controller
 {
     private readonly ICartService _cartService;
     private readonly IProductCatalogService _productCatalogService;
+    private readonly ApplicationDbContext _context;
+    private readonly UserManager<IdentityUser> _userManager;
 
-    public OrderController(ICartService cartService, IProductCatalogService productCatalogService)
+    public OrderController(
+        ICartService cartService,
+        IProductCatalogService productCatalogService,
+        ApplicationDbContext context,
+        UserManager<IdentityUser> userManager)
     {
         _cartService = cartService;
         _productCatalogService = productCatalogService;
+        _context = context;
+        _userManager = userManager;
     }
 
     public IActionResult Checkout()
@@ -44,7 +56,7 @@ public class OrderController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult PlaceOrder(string customerName, string customerEmail, string shippingAddress, string phoneNumber)
+    public async Task<IActionResult> PlaceOrder(string customerName, string customerEmail, string shippingAddress, string phoneNumber)
     {
         var cartItems = _cartService.GetItems();
 
@@ -57,7 +69,7 @@ public class OrderController : Controller
         if (string.IsNullOrWhiteSpace(customerName) || string.IsNullOrWhiteSpace(customerEmail) ||
             string.IsNullOrWhiteSpace(shippingAddress) || string.IsNullOrWhiteSpace(phoneNumber))
         {
-            ModelState.AddModelError("", "All fields are required");
+            ModelState.AddModelError("", "Tat ca cac cho trong can duoc dien");
             return RedirectToAction(nameof(Checkout));
         }
 
@@ -70,35 +82,57 @@ public class OrderController : Controller
         var totalAmount = items.Sum(x => x.Product!.Price * x.Value);
 
         // Create order object (in real app, save to database)
+        var currentUserId = _userManager.GetUserId(User);
+
         var order = new Order
         {
-            CustomerName = customerName,
+            UserId = currentUserId,
             CustomerEmail = customerEmail,
-            ShippingAddress = shippingAddress,
+            RecipientName = customerName,
             PhoneNumber = phoneNumber,
+            AddressLine1 = shippingAddress,
+            City = "Unknown",
+            Country = "Vietnam",
             TotalAmount = totalAmount,
-            OrderDate = DateTime.UtcNow,
-            Status = "Pending"
+            CreatedAtUtc = DateTime.UtcNow,
+            Status = OrderStatus.Pending,
+            Items = items.Select(x => new OrderItem
+            {
+                ProductId = x.Product!.Id,
+                ProductName = x.Product.Name,
+                UnitPrice = x.Product.Price,
+                Quantity = x.Value
+            }).ToList()
         };
 
-        // Store order in TempData for display (in real app, save to DB and get ID)
-        TempData["OrderId"] = "ORD-" + DateTime.UtcNow.Ticks;
-        TempData["OrderDetails"] = System.Text.Json.JsonSerializer.Serialize(order);
+        _context.Orders.Add(order);
+        await _context.SaveChangesAsync();
+
+        TempData["OrderId"] = order.Id;
 
         _cartService.Clear();
 
         return RedirectToAction(nameof(Confirmation));
     }
 
-    public IActionResult Confirmation()
+    public async Task<IActionResult> Confirmation()
     {
-        if (TempData["OrderDetails"] is not string orderJson)
+        if (TempData["OrderId"] is not int orderId)
         {
             return RedirectToAction("Index", "Store");
         }
 
-        var order = System.Text.Json.JsonSerializer.Deserialize<Order>(orderJson);
-        ViewBag.OrderId = TempData["OrderId"];
+        var order = await _context.Orders
+            .AsNoTracking()
+            .Include(o => o.Items)
+            .FirstOrDefaultAsync(o => o.Id == orderId);
+
+        if (order is null)
+        {
+            return RedirectToAction("Index", "Store");
+        }
+
+        ViewBag.OrderId = $"ORD-{order.Id:D6}";
 
         return View(order);
     }
