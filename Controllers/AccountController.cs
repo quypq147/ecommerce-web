@@ -307,6 +307,12 @@ namespace EcommerceApp.Controllers
 
                 if (result.Succeeded)
                 {
+                    var user = await _userManager.FindByEmailAsync(model.Email);
+                    if (user is not null && await _userManager.IsInRoleAsync(user, AppRoles.Admin))
+                    {
+                        return RedirectToAction("Index", "Admin");
+                    }
+
                     return RedirectToLocal(returnUrl);
                 }
 

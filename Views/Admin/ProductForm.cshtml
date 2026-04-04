@@ -11,7 +11,7 @@
             <h2 class="text-3xl font-black text-on-surface">@(isEdit ? "Sửa sản phẩm" : "Thêm sản phẩm")</h2>
             <p class="mt-2 text-secondary">Quản lý sản phẩm trong trang quản trị.</p>
         </div>
-        <a class="rounded-lg border border-outline-variant/50 px-4 py-2 text-sm font-semibold text-secondary" href="/Admin">Quay lại</a>
+        <a class="rounded-lg border border-outline-variant/50 px-4 py-2 text-sm font-semibold text-secondary" href="/Admin/Products">Quay lại</a>
     </div>
 
     @if (!ViewData.ModelState.IsValid)
@@ -63,7 +63,7 @@
 
         <div>
             <label class="mb-2 block text-xs font-bold uppercase tracking-[0.16em] text-secondary">Danh mục</label>
-            <select class="w-full rounded-xl border border-outline-variant/50 px-4 py-3" name="CategoryId">
+            <select id="category-select" class="w-full rounded-xl border border-outline-variant/50 px-4 py-3" name="CategoryId">
                 <option value="">Chọn danh mục</option>
                 @foreach (var category in Model.Categories)
                 {
@@ -72,14 +72,26 @@
                         : $"{category.Icon} • {category.Name}";
                     if (category.Id == Model.CategoryId)
                     {
+<<<<<<< Updated upstream
                         <option selected="selected" value="@category.Id">@categoryLabel</option>
                     }
                     else
                     {
                         <option value="@category.Id">@categoryLabel</option>
+=======
+                        <option selected="selected" data-icon="@category.Icon" value="@category.Id">@categoryLabel</option>
+                    }
+                    else
+                    {
+                        <option data-icon="@category.Icon" value="@category.Id">@categoryLabel</option>
+>>>>>>> Stashed changes
                     }
                 }
             </select>
+            <p class="mt-1 inline-flex items-center gap-2 text-xs text-secondary">
+                <span id="category-selected-icon" class="material-symbols-outlined text-base">category</span>
+                Biểu tượng danh mục hiện tại
+            </p>
         </div>
 
         <button class="inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white" type="submit">
@@ -87,3 +99,22 @@
         </button>
     </form>
 </section>
+
+@section Scripts {
+    <script>
+        (() => {
+            const select = document.getElementById('category-select');
+            const iconTarget = document.getElementById('category-selected-icon');
+            if (!select || !iconTarget) return;
+
+            const update = () => {
+                const selectedOption = select.options[select.selectedIndex];
+                const icon = (selectedOption?.dataset.icon || '').trim().replace(/\s+/g, '_').toLowerCase();
+                iconTarget.textContent = icon || 'category';
+            };
+
+            select.addEventListener('change', update);
+            update();
+        })();
+    </script>
+}

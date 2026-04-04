@@ -38,7 +38,48 @@ namespace EcommerceApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(string? search = null)
+        public async Task<IActionResult> Index()
+        {
+            var orders = await _context.Orders
+                .AsNoTracking()
+                .Include(o => o.Items)
+                .OrderByDescending(o => o.CreatedAtUtc)
+                .Take(8)
+                .ToListAsync();
+
+            var lowStockProducts = await _context.Products
+                .AsNoTracking()
+                .Include(p => p.Category)
+                .Where(p => p.StockQuantity <= 15)
+                .OrderBy(p => p.StockQuantity)
+                .Take(5)
+                .ToListAsync();
+
+            var viewModel = new AdminOverviewViewModel
+            {
+                TotalRevenue = await _context.Orders.SumAsync(o => (decimal?)o.TotalAmount) ?? 0m,
+                TotalOrders = await _context.Orders.CountAsync(),
+                PendingOrders = await _context.Orders.CountAsync(o => o.Status == OrderStatus.Pending),
+                TotalProducts = await _context.Products.CountAsync(),
+                TotalCategories = await _context.Categories.CountAsync(),
+                RecentOrders = orders.Select(o => new AdminOrderListItemViewModel
+                {
+                    Id = o.Id,
+                    CustomerEmail = o.CustomerEmail,
+                    RecipientName = o.RecipientName,
+                    CreatedAtUtc = o.CreatedAtUtc,
+                    Status = o.Status,
+                    ItemCount = o.Items.Sum(i => i.Quantity),
+                    TotalAmount = o.TotalAmount
+                }).ToList(),
+                LowStockProducts = lowStockProducts
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Products(string? search = null)
         {
             var query = _context.Products
                 .Include(p => p.Category)
@@ -86,7 +127,7 @@ namespace EcommerceApp.Controllers
         {
             if (!await _context.Categories.AnyAsync(c => c.Id == model.CategoryId))
             {
-                ModelState.AddModelError(nameof(model.CategoryId), "Please select a valid category.");
+                ModelState.AddModelError(nameof(model.CategoryId), "Vui lòng chọn danh mục hợp lệ.");
             }
 
             if (model.ImageFile is null)
@@ -115,8 +156,8 @@ namespace EcommerceApp.Controllers
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
-            TempData["AdminMessage"] = "Product created successfully.";
-            return RedirectToAction(nameof(Index));
+            TempData["AdminMessage"] = "Tạo sản phẩm thành công.";
+            return RedirectToAction(nameof(Products));
         }
 
         [HttpGet]
@@ -157,7 +198,7 @@ namespace EcommerceApp.Controllers
 
             if (!await _context.Categories.AnyAsync(c => c.Id == model.CategoryId))
             {
-                ModelState.AddModelError(nameof(model.CategoryId), "Please select a valid category.");
+                ModelState.AddModelError(nameof(model.CategoryId), "Vui lòng chọn danh mục hợp lệ.");
             }
 
             var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == model.Id.Value);
@@ -185,8 +226,8 @@ namespace EcommerceApp.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["AdminMessage"] = "Product updated successfully.";
-            return RedirectToAction(nameof(Index));
+            TempData["AdminMessage"] = "Cập nhật sản phẩm thành công.";
+            return RedirectToAction(nameof(Products));
         }
 
         [HttpPost]
@@ -203,10 +244,10 @@ namespace EcommerceApp.Controllers
             {
                 product.Description = BuildDescription(product.Description, disable: true);
                 await _context.SaveChangesAsync();
-                TempData["AdminMessage"] = "Product disabled.";
+                TempData["AdminMessage"] = "Đã tắt sản phẩm.";
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Products));
         }
 
         [HttpPost]
@@ -223,10 +264,10 @@ namespace EcommerceApp.Controllers
             {
                 product.Description = BuildDescription(product.Description, disable: false);
                 await _context.SaveChangesAsync();
-                TempData["AdminMessage"] = "Product enabled.";
+                TempData["AdminMessage"] = "Đã bật sản phẩm.";
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Products));
         }
 
         [HttpPost]
@@ -238,10 +279,10 @@ namespace EcommerceApp.Controllers
             {
                 _context.Products.Remove(product);
                 await _context.SaveChangesAsync();
-                TempData["AdminMessage"] = "Product deleted.";
+                TempData["AdminMessage"] = "Đã xóa sản phẩm.";
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Products));
         }
 
         [HttpGet]
@@ -308,7 +349,7 @@ namespace EcommerceApp.Controllers
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
 
-            TempData["AdminMessage"] = "Category created successfully.";
+            TempData["AdminMessage"] = "Tạo danh mục thành công.";
             return RedirectToAction(nameof(Categories));
         }
 
@@ -365,7 +406,7 @@ namespace EcommerceApp.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["AdminMessage"] = "Category updated successfully.";
+            TempData["AdminMessage"] = "Cập nhật danh mục thành công.";
             return RedirectToAction(nameof(Categories));
         }
 
@@ -376,7 +417,7 @@ namespace EcommerceApp.Controllers
             var hasProducts = await _context.Products.AnyAsync(p => p.CategoryId == id);
             if (hasProducts)
             {
-                TempData["AdminMessage"] = "Cannot delete category with existing products.";
+                TempData["AdminMessage"] = "Không thể xóa danh mục đang có sản phẩm.";
                 return RedirectToAction(nameof(Categories));
             }
 
@@ -385,7 +426,7 @@ namespace EcommerceApp.Controllers
             {
                 _context.Categories.Remove(category);
                 await _context.SaveChangesAsync();
-                TempData["AdminMessage"] = "Category deleted.";
+                TempData["AdminMessage"] = "Đã xóa danh mục.";
             }
 
             return RedirectToAction(nameof(Categories));
@@ -468,7 +509,7 @@ namespace EcommerceApp.Controllers
             order.UpdatedAtUtc = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
-            TempData["AdminMessage"] = "Order status updated successfully.";
+            TempData["AdminMessage"] = "Cập nhật trạng thái đơn hàng thành công.";
             return RedirectToAction(nameof(OrderDetails), new { id = orderId });
         }
 
@@ -496,7 +537,7 @@ namespace EcommerceApp.Controllers
                 string.IsNullOrWhiteSpace(city) ||
                 string.IsNullOrWhiteSpace(country))
             {
-                TempData["AdminMessage"] = "Recipient, address line 1, city, and country are required.";
+                TempData["AdminMessage"] = "Người nhận, địa chỉ dòng 1, thành phố và quốc gia là bắt buộc.";
                 return RedirectToAction(nameof(OrderDetails), new { id = orderId });
             }
 
@@ -512,7 +553,7 @@ namespace EcommerceApp.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["AdminMessage"] = "Shipping address updated successfully.";
+            TempData["AdminMessage"] = "Cập nhật địa chỉ giao hàng thành công.";
             return RedirectToAction(nameof(OrderDetails), new { id = orderId });
         }
 

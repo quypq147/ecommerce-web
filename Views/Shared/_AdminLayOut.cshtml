@@ -1,6 +1,7 @@
 ﻿@{
     var path = Context?.Request?.Path.Value?.ToLowerInvariant() ?? string.Empty;
-    var productsActive = path == "/admin" || path.StartsWith("/admin/createproduct") || path.StartsWith("/admin/editproduct");
+    var dashboardActive = path == "/admin";
+    var productsActive = path.StartsWith("/admin/products") || path.StartsWith("/admin/createproduct") || path.StartsWith("/admin/editproduct");
     var categoriesActive = path.StartsWith("/admin/categories") || path.StartsWith("/admin/editcategory");
     var ordersActive = path.StartsWith("/admin/orders") || path.StartsWith("/admin/orderdetails");
 
@@ -54,7 +55,11 @@
             </div>
 
             <nav class="flex-grow space-y-2">
-                <a class="@NavClass(productsActive)" href="/Admin">
+                <a class="@NavClass(dashboardActive)" href="/Admin">
+                    <span class="material-symbols-outlined text-xl">dashboard</span>
+                    <span class="text-sm">Tổng quan</span>
+                </a>
+                <a class="@NavClass(productsActive)" href="/Admin/Products">
                     <span class="material-symbols-outlined text-xl">inventory_2</span>
                     <span class="text-sm">Sản phẩm</span>
                 </a>
@@ -81,7 +86,7 @@
 
         <main class="ml-64 flex min-h-screen flex-grow flex-col">
             <header class="sticky top-0 z-40 flex items-center justify-between bg-white/85 px-8 py-4 shadow-[0_24px_40px_-15px_rgba(86,94,116,0.06)] backdrop-blur-xl">
-                <span class="text-xl font-bold tracking-tight text-[#565e74]">Nhà tuyển chọn số</span>
+                <span class="text-xl font-bold tracking-tight text-[#565e74]">Quản trị TechCurator</span>
                 <div class="flex items-center gap-4">
                     <span class="material-symbols-outlined text-secondary">notifications</span>
                     <span class="material-symbols-outlined text-secondary">settings</span>
@@ -93,7 +98,7 @@
             </div>
 
             <footer class="p-8 text-center">
-                <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary/40">© 2024 The Digital Curator • Giao diện quản trị v2.4</p>
+                <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary/40">© 2024 TechCurator • Giao diện quản trị v2.4</p>
             </footer>
         </main>
     </div>

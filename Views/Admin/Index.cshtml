@@ -1,118 +1,90 @@
-﻿@model EcommerceApp.ViewModels.Admin.AdminDashboardViewModel
+﻿@model EcommerceApp.ViewModels.Admin.AdminOverviewViewModel
+@using EcommerceApp.Models
+@{
+    string TrangThaiText(OrderStatus status) => status switch
+    {
+        OrderStatus.Pending => "Chờ xử lý",
+        OrderStatus.Processing => "Đang xử lý",
+        OrderStatus.Shipped => "Đang giao",
+        OrderStatus.Delivered => "Đã giao",
+        OrderStatus.Cancelled => "Đã hủy",
+        _ => status.ToString()
+    };
+}
 
 <section class="space-y-8">
-    @if (TempData["AdminMessage"] is string message)
-    {
-        <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">@message</div>
-    }
-
-    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-            <h2 class="text-4xl font-black text-on-surface">Kho sản phẩm</h2>
-            <p class="mt-2 text-secondary">Quản lý sản phẩm và tồn kho từ trang quản trị.</p>
-        </div>
-        <a class="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-bold text-white hover:opacity-90"
-           href="/Admin/CreateProduct">
-            + Thêm sản phẩm mới
-        </a>
+    <div>
+        <h2 class="text-4xl font-black text-on-surface">Trang quản trị</h2>
+        <p class="mt-2 text-secondary">Tổng quan hệ thống và đơn hàng mới nhất.</p>
     </div>
 
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div class="rounded-2xl bg-surface-container-low p-6">
-            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Tổng sản phẩm</p>
-            <p class="mt-2 text-4xl font-black text-on-surface">@Model.TotalCatalog</p>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div class="rounded-2xl bg-white p-6 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-[0.15em] text-secondary">Doanh thu</p>
+            <p class="mt-2 text-3xl font-black text-on-surface">@Model.TotalRevenue.ToString("N0")đ</p>
         </div>
-        <div class="rounded-2xl bg-surface-container-low p-6">
-            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Tồn kho khả dụng</p>
-            <p class="mt-2 text-4xl font-black text-on-surface">@Model.ActiveStock</p>
+        <div class="rounded-2xl bg-white p-6 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-[0.15em] text-secondary">Đơn hàng</p>
+            <p class="mt-2 text-3xl font-black text-on-surface">@Model.TotalOrders</p>
         </div>
-        <div class="rounded-2xl bg-surface-container-low p-6">
-            <p class="text-xs font-bold uppercase tracking-[0.18em] text-secondary">Sắp hết hàng</p>
-            <p class="mt-2 text-4xl font-black text-on-surface">@Model.LowInventoryCount</p>
+        <div class="rounded-2xl bg-white p-6 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-[0.15em] text-secondary">Chờ xử lý</p>
+            <p class="mt-2 text-3xl font-black text-orange-600">@Model.PendingOrders</p>
         </div>
-    </div>
-
-    <div class="rounded-2xl bg-white p-6 shadow-sm">
-        <form action="/Admin" class="mb-5 flex gap-3" method="get">
-            <input class="w-full rounded-xl border border-outline-variant/50 bg-surface-container-low px-4 py-3 text-sm"
-                   name="search"
-                   placeholder="Tìm theo tên, danh mục, mô tả..."
-                   type="text"
-                   value="@Model.Search" />
-            <button class="rounded-xl border border-outline-variant/50 px-4 py-3 text-sm font-semibold text-secondary" type="submit">Tìm kiếm</button>
-            <a class="rounded-xl border border-outline-variant/50 px-4 py-3 text-sm font-semibold text-secondary" href="/Admin">Đặt lại</a>
-        </form>
-
-        <div class="overflow-x-auto">
-            <table class="min-w-full text-sm">
-                <thead>
-                    <tr class="border-b border-surface-container-high text-left text-[11px] uppercase tracking-[0.15em] text-secondary">
-                        <th class="pb-3">Sản phẩm</th>
-                        <th class="pb-3">Danh mục</th>
-                        <th class="pb-3">Giá</th>
-                        <th class="pb-3">Tồn kho</th>
-                        <th class="pb-3">Trạng thái</th>
-                        <th class="pb-3 text-right">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var product in Model.Products)
-                    {
-                        var isDisabled = (product.Description ?? string.Empty).StartsWith("[DISABLED] ", StringComparison.Ordinal);
-                        <tr class="border-b border-surface-container-low">
-                            <td class="py-4 font-semibold text-on-surface">@product.Name</td>
-                            <td class="py-4 text-secondary">@product.Category?.Name</td>
-                            <td class="py-4 font-semibold text-on-surface">@product.Price.ToString("C")</td>
-                            <td class="py-4">
-                                <span class="rounded-full px-3 py-1 text-xs font-semibold @(isDisabled ? "bg-slate-200 text-slate-700" : product.StockQuantity <= 15 ? "bg-error/10 text-error" : "bg-emerald-100 text-emerald-700")">
-                                    @product.StockQuantity sản phẩm
-                                </span>
-                            </td>
-                            <td class="py-4">
-                                <span class="rounded-full px-3 py-1 text-xs font-semibold @(isDisabled ? "bg-slate-200 text-slate-700" : "bg-emerald-100 text-emerald-700")">
-                                    @(isDisabled ? "Đã tắt" : "Đang hoạt động")
-                                </span>
-                            </td>
-                            <td class="py-4">
-                                <div class="flex items-center justify-end gap-2">
-                                    <a class="rounded-lg border border-outline-variant/50 px-3 py-2 text-xs font-semibold text-secondary"
-                                       href="/Admin/EditProduct/@product.Id">Sửa</a>
-                                    @if (isDisabled)
-                                    {
-                                        <form action="/Admin/EnableProduct/@product.Id" method="post" onsubmit="return confirm('Bật sản phẩm này?');">
-                                            @Html.AntiForgeryToken()
-                                            <button class="rounded-lg border border-emerald-300 px-3 py-2 text-xs font-semibold text-emerald-700" type="submit">Bật</button>
-                                        </form>
-                                    }
-                                    else
-                                    {
-                                        <form action="/Admin/DisableProduct/@product.Id" method="post" onsubmit="return confirm('Tắt sản phẩm này?');">
-                                            @Html.AntiForgeryToken()
-                                            <button class="rounded-lg border border-amber-300 px-3 py-2 text-xs font-semibold text-amber-700" type="submit">Tắt</button>
-                                        </form>
-                                    }
-                                    <form action="/Admin/DeleteProduct/@product.Id" method="post" onsubmit="return confirm('Xóa sản phẩm này?');">
-                                        @Html.AntiForgeryToken()
-                                        <button class="rounded-lg border border-error/30 px-3 py-2 text-xs font-semibold text-error" type="submit">Xóa</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        <div class="rounded-2xl bg-white p-6 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-[0.15em] text-secondary">Danh mục/Sản phẩm</p>
+            <p class="mt-2 text-3xl font-black text-on-surface">@Model.TotalCategories / @Model.TotalProducts</p>
         </div>
     </div>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <div class="lg:col-span-8 rounded-2xl bg-surface-container-low p-6">
-            <h3 class="text-xl font-black text-on-surface">Phân tích tồn kho</h3>
-            <p class="mt-3 text-secondary">Theo dõi sản phẩm sắp hết hàng và quản lý danh mục hiệu quả.</p>
+        <div class="rounded-2xl bg-white p-6 shadow-sm lg:col-span-8">
+            <div class="mb-4 flex items-center justify-between">
+                <h3 class="text-xl font-black text-on-surface">Đơn hàng gần đây</h3>
+                <a class="text-sm font-semibold text-primary" href="/Admin/Orders">Xem tất cả</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-surface-container-high text-left text-[11px] uppercase tracking-[0.15em] text-secondary">
+                            <th class="pb-3">Mã</th>
+                            <th class="pb-3">Khách hàng</th>
+                            <th class="pb-3">Ngày</th>
+                            <th class="pb-3">Trạng thái</th>
+                            <th class="pb-3 text-right">Tổng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.RecentOrders)
+                        {
+                            <tr class="border-b border-surface-container-low">
+                                <td class="py-3 font-semibold text-primary">#ORD-@order.Id.ToString("D6")</td>
+                                <td class="py-3 text-on-surface">@order.RecipientName</td>
+                                <td class="py-3 text-secondary">@order.CreatedAtUtc.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="py-3 text-secondary">@TrangThaiText(order.Status)</td>
+                                <td class="py-3 text-right font-semibold text-on-surface">@order.TotalAmount.ToString("N0")đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div class="lg:col-span-4 rounded-2xl bg-primary-container p-6 text-on-primary-container">
-            <h3 class="text-xl font-black">Thao tác nhanh</h3>
-            <p class="mt-3 text-sm text-on-primary-container/80">Cập nhật dữ liệu sản phẩm và cấu trúc danh mục nhanh chóng.</p>
-            <a class="mt-6 inline-flex rounded-lg bg-white/20 px-4 py-2 text-xs font-bold uppercase" href="/Admin/Categories">Quản lý danh mục</a>
+
+        <div class="rounded-2xl bg-primary-container p-6 lg:col-span-4">
+            <h3 class="text-xl font-black text-on-primary-container">Sắp hết hàng</h3>
+            <div class="mt-4 space-y-3">
+                @foreach (var product in Model.LowStockProducts)
+                {
+                    <div class="rounded-lg bg-white/50 px-3 py-2">
+                        <p class="text-sm font-semibold text-on-surface">@product.Name</p>
+                        <p class="inline-flex items-center gap-1 text-xs text-secondary">
+                            <span class="material-symbols-outlined text-sm">@(string.IsNullOrWhiteSpace(product.Category?.Icon) ? "category" : product.Category!.Icon)</span>
+                            <span>@product.Category?.Name • @product.StockQuantity sản phẩm</span>
+                        </p>
+                    </div>
+                }
+            </div>
+            <a href="/Admin/Products" class="mt-5 inline-flex rounded-lg bg-white/70 px-4 py-2 text-xs font-bold text-on-surface">Mở quản lý sản phẩm</a>
         </div>
     </div>
 </section>

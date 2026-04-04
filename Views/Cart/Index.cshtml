@@ -1,73 +1,117 @@
 @model EcommerceApp.ViewModels.CartViewModel
 @{
     ViewData["Title"] = "Giỏ hàng";
+    var vatAmount = Math.Round(Model.Total * 0.1m, 0);
+    var grandTotal = Model.Total + vatAmount;
 }
 
-<div class="w-full space-y-6">
+<div class="w-full space-y-10">
     @if (TempData["Message"] is string message)
     {
-        <div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">@message</div>
+        <div class="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">@message</div>
     }
 
-    <div class="flex items-center justify-between">
-        <h1 class="text-3xl font-bold text-slate-900">Giỏ hàng của bạn</h1>
-        <a asp-controller="Store" asp-action="Index" class="text-sm font-medium text-orange-600">Tiếp tục mua sắm</a>
+    <div>
+        <h1 class="font-headline text-5xl font-extrabold tracking-tight text-on-surface">Giỏ hàng</h1>
+        <p class="mt-2 text-sm text-slate-500">Bạn có @Model.Items.Count sản phẩm tuyệt vời trong giỏ của mình.</p>
     </div>
 
     @if (!Model.Items.Any())
     {
-        <div class="rounded-2xl bg-white p-8 text-center text-slate-500 shadow-sm">Giỏ hàng của bạn đang trống.</div>
+        <div class="rounded-2xl bg-white p-10 text-center text-slate-500 shadow-sm">
+            <p class="mb-4">Giỏ hàng của bạn đang trống.</p>
+            <a asp-controller="Store" asp-action="Index" class="inline-flex rounded-xl bg-orange-600 px-5 py-2.5 font-semibold text-white">Tiếp tục mua sắm</a>
+        </div>
     }
     else
     {
-        <div class="overflow-hidden rounded-2xl bg-white shadow-sm">
-            <table class="min-w-full divide-y divide-slate-100">
-                <thead class="bg-slate-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Sản phẩm</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Giá</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Số lượng</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Thành tiền</th>
-                        <th class="px-6 py-3"></th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @foreach (var item in Model.Items)
-                    {
-                        <tr>
-                            <td class="px-6 py-4 text-sm font-semibold text-slate-800">@item.Product.Name</td>
-                            <td class="px-6 py-4 text-sm text-slate-600">@item.Product.Price.ToString("C")</td>
-                            <td class="px-6 py-4">
-                                <form asp-action="Update" method="post" class="flex items-center gap-2">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="productId" value="@item.Product.Id" />
-                                    <input type="number" name="quantity" min="0" value="@item.Quantity" class="w-20 rounded-lg border-slate-200 text-sm" />
-                                    <button type="submit" class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">Cập nhật</button>
-                                </form>
-                            </td>
-                            <td class="px-6 py-4 text-sm font-semibold text-slate-900">@item.LineTotal.ToString("C")</td>
-                            <td class="px-6 py-4 text-right">
-                                <form asp-action="Remove" method="post">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="productId" value="@item.Product.Id" />
-                                    <button type="submit" class="text-sm font-medium text-red-500">Xóa</button>
-                                </form>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+        <div class="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-start">
+            <div class="space-y-6 lg:col-span-8">
+                @foreach (var item in Model.Items)
+                {
+                    <div class="group rounded-2xl bg-surface-container-low p-5 transition hover:bg-surface-container">
+                        <div class="flex flex-col gap-5 md:flex-row">
+                            <div class="h-36 w-full shrink-0 overflow-hidden rounded-xl bg-surface-variant md:h-32 md:w-40">
+                                <img src="@item.Product.ImageUrl" alt="@item.Product.Name" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                            </div>
+                            <div class="flex flex-1 flex-col justify-between gap-4">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <h3 class="text-2xl font-bold text-slate-900">@item.Product.Name</h3>
+                                        <p class="mt-1 text-sm text-slate-500 line-clamp-1">@item.Product.Description</p>
+                                    </div>
+                                    <form asp-action="Remove" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="productId" value="@item.Product.Id" />
+                                        <button type="submit" class="text-slate-500 transition hover:text-red-500">
+                                            <span class="material-symbols-outlined">delete</span>
+                                        </button>
+                                    </form>
+                                </div>
 
-        <div class="flex items-center justify-between rounded-2xl bg-white p-6 shadow-sm">
-            <div class="text-sm text-slate-500">Tạm tính</div>
-            <div class="text-2xl font-bold text-slate-900">@Model.Total.ToString("C")</div>
-        </div>
+                                <div class="flex flex-wrap items-end justify-between gap-4">
+                                    <form asp-action="Update" method="post" class="flex items-center gap-2">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="productId" value="@item.Product.Id" />
+                                        <input type="number" name="quantity" min="0" value="@item.Quantity" class="w-20 rounded-full border-none bg-white text-center text-sm font-semibold" />
+                                        <button type="submit" class="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">Cập nhật</button>
+                                    </form>
+                                    <div class="text-right">
+                                        <span class="block text-xs text-slate-500">Giá mỗi sản phẩm</span>
+                                        <span class="font-headline text-4xl font-bold text-slate-900">@item.LineTotal.ToString("N0")đ</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
 
-        <form asp-controller="Checkout" asp-action="Index" method="get" class="text-right">
-            <button type="submit" class="rounded-lg bg-orange-600 px-5 py-2 font-semibold text-white">
-                Đặt hàng
-            </button>
-        </form>
+            <aside class="lg:col-span-4 lg:sticky lg:top-24">
+                <div class="rounded-2xl bg-surface-container-lowest p-6 shadow-sm">
+                    <h2 class="mb-6 font-headline text-4xl font-bold">Tổng quan đơn hàng</h2>
+                    <div class="space-y-3 text-sm text-slate-600">
+                        <div class="flex justify-between">
+                            <span>Tạm tính</span>
+                            <span class="font-semibold text-slate-800">@Model.Total.ToString("N0")đ</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Thuế (VAT 10%)</span>
+                            <span class="font-semibold text-slate-800">@vatAmount.ToString("N0")đ</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Phí vận chuyển</span>
+                            <span class="font-semibold text-orange-600">Miễn phí</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 rounded-xl bg-surface-container p-4">
+                        <div class="flex items-end justify-between gap-3">
+                            <span class="font-headline text-3xl font-bold text-slate-900">Tổng cộng</span>
+                            <span class="font-headline text-5xl font-extrabold text-primary">@grandTotal.ToString("N0")đ</span>
+                        </div>
+                    </div>
+
+                    <form asp-controller="Checkout" asp-action="Index" method="get" class="mt-6">
+                        <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-primary to-primary-container py-4 font-bold text-white">
+                            <span>Tiến hành thanh toán</span>
+                            <span class="material-symbols-outlined text-xl">arrow_forward</span>
+                        </button>
+                    </form>
+
+                    <a asp-controller="Store" asp-action="Index" class="mt-4 inline-flex w-full items-center justify-center gap-2 text-sm font-medium text-slate-600 hover:text-primary">
+                        <span class="material-symbols-outlined text-base">shopping_bag</span>
+                        <span>Tiếp tục mua sắm</span>
+                    </a>
+
+                    <div class="mt-6 rounded-lg bg-surface-container-low p-4">
+                        <p class="flex gap-2 text-xs text-on-secondary-container">
+                            <span class="material-symbols-outlined shrink-0 text-sm text-primary">verified_user</span>
+                            TechCurator cam kết bảo mật thông tin và cung cấp chế độ hậu mãi chuyên nghiệp hàng đầu.
+                        </p>
+                    </div>
+                </div>
+            </aside>
+        </div>
     }
 </div>

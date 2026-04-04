@@ -18,14 +18,8 @@ public class CheckoutController : Controller
 	// GET: /Checkout
 	public IActionResult Index()
 	{
-		var cartItems = _cartService.GetItems();
-		if (!cartItems.Any()) return RedirectToAction("Index", "Cart");
-
-		var items = cartItems
-			.Select(item => new { Product = _productCatalogService.GetProductById(item.Key), Quantity = item.Value })
-			.Where(x => x.Product != null)
-			.Select(x => new CartItemViewModel { Product = x.Product!, Quantity = x.Quantity })
-			.ToList();
+        var items = BuildCartItems();
+		if (!items.Any()) return RedirectToAction("Index", "Cart");
 
 		var model = new CheckoutViewModel { CartItems = items };
 		return View(model);
@@ -36,10 +30,34 @@ public class CheckoutController : Controller
 	[ValidateAntiForgeryToken]
 	public IActionResult Process(CheckoutViewModel model)
 	{
-		// Tại đây bạn xử lý lưu Database hoặc gọi API thanh toán
-		// Giả sử thanh toán thành công:
+     var items = BuildCartItems();
+		if (!items.Any()) return RedirectToAction("Index", "Cart");
+
+		model.CartItems = items;
+		if (!ModelState.IsValid)
+		{
+			return View("Index", model);
+		}
+
+		var successModel = new CheckoutSuccessViewModel
+		{
+			OrderCode = $"ORD-{DateTime.Now:yyMMddHHmmss}",
+          CustomerName = string.IsNullOrWhiteSpace(model.RecipientName) ? model.FullName : model.RecipientName,
+			Items = items
+		};
+
 		_cartService.Clear();
-		return View("Success"); // Tạo thêm View Success nếu muốn hiện thông báo cảm ơn
+     return View("Success", successModel);
+	}
+
+	private List<CartItemViewModel> BuildCartItems()
+	{
+		var cartItems = _cartService.GetItems();
+		return cartItems
+			.Select(item => new { Product = _productCatalogService.GetProductById(item.Key), Quantity = item.Value })
+			.Where(x => x.Product != null)
+			.Select(x => new CartItemViewModel { Product = x.Product!, Quantity = x.Quantity })
+			.ToList();
 	}
 
 }

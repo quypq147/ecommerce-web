@@ -1,84 +1,265 @@
 ﻿@model EcommerceApp.ViewModels.CheckoutViewModel
+@{
+    ViewData["Title"] = "Thanh toán";
+}
 
-<div class="container mx-auto px-4 py-10">
-    <div class="flex flex-wrap -mx-4">
-        <div class="w-full lg:w-2/3 px-4">
-            <h2 class="text-2xl font-bold mb-6">Thanh toán</h2>
-
-            <form asp-action="Process" method="post" class="bg-white p-6 rounded-lg shadow-sm border">
-                <div class="mb-6">
-                    <label class="block font-semibold mb-2">Hình thức thanh toán</label>
-                    <div class="flex gap-4">
-                        <label class="flex items-center p-3 border rounded cursor-pointer hover:bg-gray-50">
-                            <input type="radio" asp-for="PaymentMethod" value="Card" class="mr-2" checked>
-                            <span>💳 Thẻ</span>
-                        </label>
-                        <label class="flex items-center p-3 border rounded cursor-pointer hover:bg-gray-50">
-                            <input type="radio" asp-for="PaymentMethod" value="COD" class="mr-2">
-                            <span>✋ Thanh toán khi nhận</span>
-                        </label>
-                    </div>
+<div class="w-full space-y-10">
+    <div class="mx-auto max-w-md">
+        <div class="flex items-center justify-center gap-3">
+            <div class="flex flex-col items-center gap-2">
+                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container-high text-slate-500">
+                    <span class="material-symbols-outlined text-lg">check_circle</span>
                 </div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm">Họ và tên</label>
-                        <input asp-for="FullName" class="w-full border p-2 rounded bg-gray-50" placeholder="NGUYEN VAN A">
-                    </div>
-                    <div>
-                        <label class="block text-sm">Số thẻ</label>
-                        <input asp-for="CardNumber" class="w-full border p-2 rounded bg-gray-50" placeholder="0000 0000 0000 0000">
-                    </div>
-                    <div class="flex gap-4">
-                        <div class="flex-1">
-                            <label class="block text-sm">Ngày hết hạn</label>
-                            <input asp-for="ExpiryDate" class="w-full border p-2 rounded bg-gray-50" placeholder="MM/YY">
-                        </div>
-                        <div class="w-1/3">
-                            <label class="block text-sm">CVV</label>
-                            <input asp-for="CVV" class="w-full border p-2 rounded bg-gray-50" placeholder="***">
-                        </div>
-                    </div>
-                    <div class="flex items-center py-2">
-                        <input type="checkbox" id="save" class="mr-2">
-                        <label for="save" class="text-sm">Lưu thông tin thẻ</label>
-                    </div>
+                <span class="text-xs font-semibold uppercase tracking-widest text-slate-500">Giỏ hàng</span>
+            </div>
+            <div class="mb-6 h-px w-16 bg-outline-variant/40"></div>
+            <div class="flex flex-col items-center gap-2">
+                <div class="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-container text-white shadow-lg shadow-orange-600/20">
+                    <span class="material-symbols-outlined text-2xl">payments</span>
                 </div>
+                <span class="text-xs font-bold uppercase tracking-widest text-primary">Thanh toán</span>
+            </div>
+            <div class="mb-6 h-px w-16 bg-outline-variant/40"></div>
+            <div class="flex flex-col items-center gap-2 opacity-40">
+                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-surface-container-high text-slate-500">
+                    <span class="material-symbols-outlined text-lg">verified</span>
+                </div>
+                <span class="text-xs font-semibold uppercase tracking-widest text-slate-500">Hoàn tất</span>
+            </div>
+        </div>
+    </div>
 
-                <div class="flex justify-between mt-10">
-                    <a asp-controller="Cart" asp-action="Index" class="px-8 py-2 bg-orange-400 text-white rounded font-bold">Hủy</a>
-                    <button type="submit" class="px-8 py-2 bg-gray-300 text-gray-700 rounded font-bold">Thanh toán</button>
+    <div class="flex flex-col gap-8 lg:flex-row lg:items-start">
+        <div class="flex-1">
+            <form id="checkout-form" asp-action="Process" method="post" class="space-y-8">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600"></div>
+                <section class="space-y-6">
+                    <h1 class="text-4xl font-extrabold tracking-tight text-slate-900">Thanh toán</h1>
+                    <div>
+                        <h2 class="mb-4 text-2xl font-bold text-slate-900">Phương thức thanh toán</h2>
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <label class="pay-option cursor-pointer rounded-xl border border-primary/60 bg-surface-container-lowest p-4 ring-2 ring-primary/30" data-method="Card">
+                                <div class="flex items-center gap-3">
+                                    <input type="radio" asp-for="PaymentMethod" value="Card" class="text-primary focus:ring-primary" checked />
+                                    <span class="material-symbols-outlined text-primary">credit_card</span>
+                                    <span class="font-semibold text-slate-900">Thẻ tín dụng/Ghi nợ</span>
+                                </div>
+                                <p class="mt-1 pl-9 text-sm text-slate-500">Visa, Mastercard, JCB</p>
+                            </label>
+                            <label class="pay-option cursor-pointer rounded-xl border border-slate-200 bg-surface-container-low p-4 hover:bg-surface-container-high" data-method="COD">
+                                <div class="flex items-center gap-3">
+                                    <input type="radio" asp-for="PaymentMethod" value="COD" class="text-primary focus:ring-primary" />
+                                    <span class="material-symbols-outlined text-slate-500">local_shipping</span>
+                                    <span class="font-semibold text-slate-900">Thanh toán khi nhận hàng</span>
+                                </div>
+                                <p class="mt-1 pl-9 text-sm text-slate-500">Thanh toán bằng tiền mặt</p>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="card-section" class="space-y-5 rounded-xl bg-surface-container-low/60 p-6 card-info">
+                    <h3 class="text-2xl font-bold text-slate-900">Chi tiết thẻ</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label asp-for="FullName" class="mb-2 block text-xs font-bold uppercase tracking-widest text-slate-500">Tên chủ thẻ</label>
+                            <input asp-for="FullName" class="h-12 w-full rounded-lg border-none bg-surface-container-lowest px-4 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20" placeholder="NGUYEN VAN A" />
+                            <span asp-validation-for="FullName" class="text-xs text-red-500"></span>
+                        </div>
+                        <div>
+                            <label asp-for="CardNumber" class="mb-2 block text-xs font-bold uppercase tracking-widest text-slate-500">Số thẻ</label>
+                            <input asp-for="CardNumber" class="h-12 w-full rounded-lg border-none bg-surface-container-lowest px-4 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20" placeholder="0000 0000 0000 0000" />
+                            <span asp-validation-for="CardNumber" class="text-xs text-red-500"></span>
+                        </div>
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <div>
+                                <label asp-for="ExpiryDate" class="mb-2 block text-xs font-bold uppercase tracking-widest text-slate-500">Ngày hết hạn</label>
+                                <input asp-for="ExpiryDate" class="h-12 w-full rounded-lg border-none bg-surface-container-lowest px-4 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20" placeholder="MM / YY" />
+                                <span asp-validation-for="ExpiryDate" class="text-xs text-red-500"></span>
+                            </div>
+                            <div>
+                                <label asp-for="CVV" class="mb-2 block text-xs font-bold uppercase tracking-widest text-slate-500">CVV / CVC</label>
+                                <input asp-for="CVV" class="h-12 w-full rounded-lg border-none bg-surface-container-lowest px-4 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20" placeholder="***" />
+                                <span asp-validation-for="CVV" class="text-xs text-red-500"></span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="address-section" class="hidden space-y-5 rounded-xl bg-surface-container-low/60 p-6">
+                    <h3 class="text-2xl font-bold text-slate-900">Thông tin giao hàng</h3>
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <div>
+                            <label asp-for="RecipientName" class="mb-2 block text-xs font-bold uppercase tracking-widest text-slate-500">Người nhận</label>
+                            <input asp-for="RecipientName" class="h-12 w-full rounded-lg border-none bg-surface-container-lowest px-4 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20" placeholder="Nguyễn Văn A" />
+                            <span asp-validation-for="RecipientName" class="text-xs text-red-500"></span>
+                        </div>
+                        <div>
+                            <label asp-for="PhoneNumber" class="mb-2 block text-xs font-bold uppercase tracking-widest text-slate-500">Số điện thoại</label>
+                            <input asp-for="PhoneNumber" class="h-12 w-full rounded-lg border-none bg-surface-container-lowest px-4 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20" placeholder="0901234567" />
+                            <span asp-validation-for="PhoneNumber" class="text-xs text-red-500"></span>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label asp-for="CustomerEmail" class="mb-2 block text-xs font-bold uppercase tracking-widest text-slate-500">Email</label>
+                            <input asp-for="CustomerEmail" class="h-12 w-full rounded-lg border-none bg-surface-container-lowest px-4 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20" placeholder="email@example.com" />
+                            <span asp-validation-for="CustomerEmail" class="text-xs text-red-500"></span>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label asp-for="AddressLine1" class="mb-2 block text-xs font-bold uppercase tracking-widest text-slate-500">Địa chỉ</label>
+                            <input asp-for="AddressLine1" class="h-12 w-full rounded-lg border-none bg-surface-container-lowest px-4 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20" placeholder="123 Đường ABC, Phường XYZ" />
+                            <span asp-validation-for="AddressLine1" class="text-xs text-red-500"></span>
+                        </div>
+                        <div>
+                            <label asp-for="AddressLine2" class="mb-2 block text-xs font-bold uppercase tracking-widest text-slate-500">Địa chỉ bổ sung</label>
+                            <input asp-for="AddressLine2" class="h-12 w-full rounded-lg border-none bg-surface-container-lowest px-4 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20" placeholder="Căn hộ, tầng..." />
+                        </div>
+                        <div>
+                            <label asp-for="City" class="mb-2 block text-xs font-bold uppercase tracking-widest text-slate-500">Thành phố</label>
+                            <input asp-for="City" class="h-12 w-full rounded-lg border-none bg-surface-container-lowest px-4 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20" placeholder="TP. Hồ Chí Minh" />
+                            <span asp-validation-for="City" class="text-xs text-red-500"></span>
+                        </div>
+                        <div>
+                            <label asp-for="StateOrProvince" class="mb-2 block text-xs font-bold uppercase tracking-widest text-slate-500">Quận/Huyện</label>
+                            <input asp-for="StateOrProvince" class="h-12 w-full rounded-lg border-none bg-surface-container-lowest px-4 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20" placeholder="Quận 1" />
+                        </div>
+                        <div>
+                            <label asp-for="PostalCode" class="mb-2 block text-xs font-bold uppercase tracking-widest text-slate-500">Mã bưu chính</label>
+                            <input asp-for="PostalCode" class="h-12 w-full rounded-lg border-none bg-surface-container-lowest px-4 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20" placeholder="700000" />
+                        </div>
+                        <div class="md:col-span-2">
+                            <label asp-for="Country" class="mb-2 block text-xs font-bold uppercase tracking-widest text-slate-500">Quốc gia</label>
+                            <input asp-for="Country" class="h-12 w-full rounded-lg border-none bg-surface-container-lowest px-4 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20" />
+                            <span asp-validation-for="Country" class="text-xs text-red-500"></span>
+                        </div>
+                    </div>
+                </section>
+
+                <button id="go-address-btn" type="button" class="hidden rounded-xl bg-primary px-5 py-2.5 font-semibold text-white">Chuyển sang nhập địa chỉ</button>
+
+                <div class="flex items-center gap-2 rounded-lg bg-primary-container/10 p-4 text-sm text-on-primary-container">
+                    <span class="material-symbols-outlined text-primary">security</span>
+                    <p>Thông tin thanh toán của bạn được mã hóa và bảo mật tuyệt đối 256-bit SSL.</p>
                 </div>
             </form>
         </div>
 
-        <div class="w-full lg:w-1/3 px-4 mt-10 lg:mt-0">
-            <div class="bg-gray-100 p-6 rounded-lg">
-                <h3 class="text-xl font-bold mb-4">Đơn hàng của bạn</h3>
-                <table class="w-full text-sm mb-6">
-                    <thead>
-                        <tr class="border-b">
-                            <th class="text-left py-2">Tên sản phẩm</th>
-                            <th class="text-center py-2">SL</th>
-                            <th class="text-right py-2">Đơn giá</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model.CartItems)
-                        {
-                            <tr>
-                                <td class="py-2">@item.Product.Name</td>
-                                <td class="text-center py-2">@item.Quantity</td>
-                                <td class="text-right py-2">@item.Product.Price.ToString("N0") đ</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-                <div class="border-t pt-4 flex justify-between items-center">
-                    <span class="text-lg font-bold">Tổng đơn:</span>
-                    <span class="text-xl font-bold text-orange-600">@Model.TotalAmount.ToString("N0") đ</span>
+        <aside class="w-full lg:w-[360px] lg:sticky lg:top-24">
+            <div class="rounded-xl border border-surface-container-high bg-surface-container-lowest p-6 shadow-lg shadow-slate-200/40">
+                <h2 class="mb-6 text-2xl font-bold text-slate-900">Tóm tắt đơn hàng</h2>
+                <div class="space-y-4">
+                    @foreach (var item in Model.CartItems)
+                    {
+                        <div class="flex gap-3">
+                            <div class="h-16 w-16 overflow-hidden rounded-lg bg-surface-variant">
+                                <img src="@item.Product.ImageUrl" alt="@item.Product.Name" class="h-full w-full object-cover" />
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="truncate text-sm font-bold text-slate-900">@item.Product.Name</p>
+                                <p class="text-xs text-slate-500">Số lượng: @item.Quantity</p>
+                                <p class="font-bold text-primary">@item.LineTotal.ToString("N0")đ</p>
+                            </div>
+                        </div>
+                    }
                 </div>
+
+                <div class="mt-6 space-y-2 border-t border-surface-container-high pt-4 text-sm">
+                    <div class="flex justify-between text-slate-500">
+                        <span>Tạm tính</span>
+                        <span>@Model.TotalAmount.ToString("N0")đ</span>
+                    </div>
+                    <div class="flex justify-between text-slate-500">
+                        <span>Phí vận chuyển</span>
+                        <span class="font-semibold text-tertiary">Miễn phí</span>
+                    </div>
+                    <div class="flex items-end justify-between pt-3">
+                        <span class="text-lg font-bold text-slate-900">Tổng cộng</span>
+                        <span class="text-4xl font-extrabold text-primary">@Model.TotalAmount.ToString("N0")đ</span>
+                    </div>
+                </div>
+
+                <button type="submit" form="checkout-form" class="mt-8 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-primary to-primary-container text-lg font-bold text-white shadow-xl shadow-orange-600/20">
+                    <span>Hoàn tất thanh toán</span>
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+
+                <a asp-controller="Cart" asp-action="Index" class="mt-3 inline-flex w-full items-center justify-center text-sm text-slate-500 hover:text-primary">Quay lại giỏ hàng</a>
             </div>
-        </div>
+        </aside>
     </div>
 </div>
+<script>
+    const cardSection = document.getElementById('card-section');
+    const addressSection = document.getElementById('address-section');
+    const goAddressBtn = document.getElementById('go-address-btn');
+    const methodRadios = document.querySelectorAll('input[name="PaymentMethod"]');
+    const paymentCards = document.querySelectorAll('.pay-option');
+
+    const fullName = document.getElementById('FullName');
+    const cardNumber = document.getElementById('CardNumber');
+    const expiryDate = document.getElementById('ExpiryDate');
+    const cvv = document.getElementById('CVV');
+
+    function cardValid() {
+        const number = (cardNumber?.value || '').replace(/\s+/g, '');
+        const expiry = (expiryDate?.value || '').trim();
+        const cvvValue = (cvv?.value || '').trim();
+        return (fullName?.value || '').trim().length > 0
+            && /^\d{16}$/.test(number)
+            && /^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry)
+            && /^\d{3,4}$/.test(cvvValue);
+    }
+
+    function getSelectedMethod() {
+        const checked = Array.from(methodRadios).find(x => x.checked);
+        return checked ? checked.value : 'Card';
+    }
+
+    function updatePayOptionTheme(method) {
+        paymentCards.forEach(card => {
+            const selected = card.dataset.method === method;
+            card.classList.toggle('border-primary/60', selected);
+            card.classList.toggle('ring-2', selected);
+            card.classList.toggle('ring-primary/30', selected);
+            card.classList.toggle('bg-surface-container-lowest', selected);
+            card.classList.toggle('border-slate-200', !selected);
+            card.classList.toggle('bg-surface-container-low', !selected);
+        });
+    }
+
+    function updatePaymentFlow() {
+        const method = getSelectedMethod();
+        updatePayOptionTheme(method);
+
+        if (method === 'COD') {
+            cardSection.classList.add('hidden');
+            goAddressBtn.classList.remove('hidden');
+            return;
+        }
+
+        cardSection.classList.remove('hidden');
+        if (cardValid()) {
+            goAddressBtn.classList.remove('hidden');
+        } else {
+            goAddressBtn.classList.add('hidden');
+        }
+    }
+
+    methodRadios.forEach(radio => {
+        radio.addEventListener('change', updatePaymentFlow);
+    });
+
+    [fullName, cardNumber, expiryDate, cvv].forEach(input => {
+        if (input) {
+            input.addEventListener('input', updatePaymentFlow);
+        }
+    });
+
+    goAddressBtn.addEventListener('click', () => {
+        addressSection.classList.remove('hidden');
+        addressSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    updatePaymentFlow();
+
+</script>
