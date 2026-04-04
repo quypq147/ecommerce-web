@@ -8,7 +8,7 @@ namespace EcommerceApp.Models
         public int Id { get; set; }
 
         public int ProductId { get; set; }
-        public Product Product { get; set; }
+        public Product Product { get; set; } = null!;
 
         [Required]
         [Range(1, 5)]
@@ -16,11 +16,11 @@ namespace EcommerceApp.Models
 
         [Required]
         [StringLength(500)]
-        public string Comment { get; set; }
+        public string Comment { get; set; } = string.Empty;
 
         [Required]
         [StringLength(100)]
-        public string ReviewerName { get; set; }
+        public string ReviewerName { get; set; } = string.Empty;
 
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     }

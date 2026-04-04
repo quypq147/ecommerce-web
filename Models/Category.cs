@@ -9,15 +9,15 @@ namespace EcommerceApp.Models
 
         [Required]
         [StringLength(100)]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [StringLength(500)]
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         [StringLength(80)]
         public string? Icon { get; set; }
 
         // Navigation property
-        public List<Product> Products { get; set; }
+        public List<Product> Products { get; set; } = [];
     }
 }
