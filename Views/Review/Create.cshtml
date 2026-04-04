@@ -4,42 +4,73 @@
     ViewData["Title"] = "Thêm đánh giá";
 }
 
-<div class="modal-header">
-    <h5 class="modal-title">Thêm đánh giá sản phẩm</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-</div>
+<div class="rounded-2xl border border-outline-variant/30 bg-white shadow-sm overflow-hidden">
+    <div class="flex items-center justify-between border-b border-outline-variant/20 bg-surface-container-low px-5 py-4">
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">rate_review</span>
+            <h5 class="text-base font-bold text-on-surface">Thêm đánh giá sản phẩm</h5>
+        </div>
+        <button type="button" class="rounded-full p-1 text-secondary hover:bg-surface-container" data-bs-dismiss="modal" aria-label="Đóng">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
 
-<form method="post" action="@Url.Action("Create", "Review")">
-    @Html.AntiForgeryToken()
-    
-    <div class="modal-body">
+    <form method="post" action="@Url.Action("Create", "Review")" class="space-y-5 p-5">
+        @Html.AntiForgeryToken()
         <input type="hidden" name="productId" value="@Model.ProductId">
 
-        <div class="mb-3">
-            <label for="reviewerName" class="form-label">Tên của bạn</label>
-            <input type="text" class="form-control" id="reviewerName" name="reviewerName" required>
+        <div class="rounded-xl bg-primary-fixed/30 px-4 py-3 text-sm text-on-surface">
+            Chia sẻ trải nghiệm thực tế để giúp người dùng khác chọn sản phẩm phù hợp hơn.
         </div>
 
-        <div class="mb-3">
-            <label for="rating" class="form-label">Đánh giá (1-5 sao)</label>
-            <select class="form-select" id="rating" name="rating" required>
+        <div>
+            <label for="reviewerName" class="mb-2 block text-sm font-semibold text-on-surface">Tên của bạn</label>
+            <input type="text"
+                   class="w-full rounded-xl border border-outline-variant/50 bg-white px-4 py-2.5 text-sm focus:border-primary-container focus:outline-none focus:ring-2 focus:ring-primary-fixed"
+                   id="reviewerName"
+                   name="reviewerName"
+                   placeholder="Ví dụ: Nguyễn Văn A"
+                   required>
+        </div>
+
+        <div>
+            <label for="rating" class="mb-2 block text-sm font-semibold text-on-surface">Đánh giá</label>
+            <select class="w-full rounded-xl border border-outline-variant/50 bg-white px-4 py-2.5 text-sm focus:border-primary-container focus:outline-none focus:ring-2 focus:ring-primary-fixed"
+                    id="rating"
+                    name="rating"
+                    required>
                 <option value="">Chọn số sao</option>
-                <option value="1">1 Sao - Kém</option>
-                <option value="2">2 Sao - Tạm</option>
-                <option value="3">3 Sao - Tốt</option>
-                <option value="4">4 Sao - Rất tốt</option>
-                <option value="5">5 Sao - Xuất sắc</option>
+                <option value="5">⭐⭐⭐⭐⭐ 5 Sao - Xuất sắc</option>
+                <option value="4">⭐⭐⭐⭐ 4 Sao - Rất tốt</option>
+                <option value="3">⭐⭐⭐ 3 Sao - Tốt</option>
+                <option value="2">⭐⭐ 2 Sao - Tạm</option>
+                <option value="1">⭐ 1 Sao - Kém</option>
             </select>
         </div>
 
-        <div class="mb-3">
-            <label for="comment" class="form-label">Nhận xét của bạn</label>
-            <textarea class="form-control" id="comment" name="comment" rows="4" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..." required></textarea>
+        <div>
+            <label for="comment" class="mb-2 block text-sm font-semibold text-on-surface">Nhận xét của bạn</label>
+            <textarea class="w-full rounded-xl border border-outline-variant/50 bg-white px-4 py-3 text-sm focus:border-primary-container focus:outline-none focus:ring-2 focus:ring-primary-fixed"
+                      id="comment"
+                      name="comment"
+                      rows="4"
+                      maxlength="500"
+                      placeholder="Chia sẻ cảm nhận của bạn về chất lượng, hiệu năng, đóng gói, thời gian giao hàng..."
+                      required></textarea>
+            <p class="mt-1 text-xs text-secondary">Tối đa 500 ký tự.</p>
         </div>
-    </div>
 
-    <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-        <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
-    </div>
-</form>
+        <div class="flex items-center justify-end gap-2 border-t border-outline-variant/20 pt-4">
+            <button type="button"
+                    class="rounded-xl border border-outline-variant/50 bg-white px-4 py-2 text-sm font-semibold text-secondary hover:bg-surface-container-low"
+                    data-bs-dismiss="modal">
+                Hủy
+            </button>
+            <button type="submit"
+                    class="inline-flex items-center gap-1 rounded-xl bg-primary-container px-4 py-2 text-sm font-bold text-on-primary shadow-sm hover:opacity-95">
+                <span class="material-symbols-outlined text-base">send</span>
+                <span>Gửi đánh giá</span>
+            </button>
+        </div>
+    </form>
+</div>

@@ -2,12 +2,14 @@ using EcommerceApp.Models;
 using EcommerceApp.Data;
 using EcommerceApp.Services;
 using EcommerceApp.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace EcommerceApp.Controllers;
 
+[Authorize]
 public class OrderController : Controller
 {
     private readonly ICartService _cartService;

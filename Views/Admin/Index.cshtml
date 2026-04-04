@@ -1,4 +1,4 @@
-﻿@model EcommerceApp.ViewModels.Admin.AdminOverviewViewModel
+﻿@model EcommerceApp.ViewModels.Admin.AdminDashboardViewModel
 @using EcommerceApp.Models
 @{
     string TrangThaiText(OrderStatus status) => status switch
@@ -34,6 +34,58 @@
         <div class="rounded-2xl bg-white p-6 shadow-sm">
             <p class="text-xs font-bold uppercase tracking-[0.15em] text-secondary">Danh mục/Sản phẩm</p>
             <p class="mt-2 text-3xl font-black text-on-surface">@Model.TotalCategories / @Model.TotalProducts</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <div class="rounded-2xl bg-white p-6 shadow-sm lg:col-span-6">
+            <div class="mb-4 flex items-center justify-between">
+                <h3 class="text-xl font-black text-on-surface">Doanh thu theo tháng (12 tháng)</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-surface-container-high text-left text-[11px] uppercase tracking-[0.15em] text-secondary">
+                            <th class="pb-3">Tháng</th>
+                            <th class="pb-3 text-right">Doanh thu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.MonthlyRevenue)
+                        {
+                            <tr class="border-b border-surface-container-low">
+                                <td class="py-3 text-on-surface">@item.Month.ToString("D2")/@item.Year</td>
+                                <td class="py-3 text-right font-semibold text-on-surface">@item.Revenue.ToString("N0")đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="rounded-2xl bg-white p-6 shadow-sm lg:col-span-6">
+            <h3 class="text-xl font-black text-on-surface">Top 5 sản phẩm bán chạy</h3>
+            <div class="mt-4 overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-surface-container-high text-left text-[11px] uppercase tracking-[0.15em] text-secondary">
+                            <th class="pb-3">Sản phẩm</th>
+                            <th class="pb-3 text-right">SL bán</th>
+                            <th class="pb-3 text-right">Doanh thu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var product in Model.TopSellingProducts)
+                        {
+                            <tr class="border-b border-surface-container-low">
+                                <td class="py-3 text-on-surface">@product.ProductName</td>
+                                <td class="py-3 text-right font-semibold text-on-surface">@product.TotalQuantity</td>
+                                <td class="py-3 text-right font-semibold text-on-surface">@product.TotalRevenue.ToString("N0")đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 

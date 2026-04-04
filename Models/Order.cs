@@ -14,6 +14,16 @@ namespace EcommerceApp.Models
         Cancelled = 4
     }
 
+    public enum PaymentStatus
+    {
+        Unpaid = 0,
+        Pending = 1,
+        Paid = 2,
+        Failed = 3,
+        Refunded = 4,
+        Cancelled = 5
+    }
+
     public class Order
     {
         public int Id { get; set; }
@@ -53,6 +63,22 @@ namespace EcommerceApp.Models
         [Required]
         [StringLength(100)]
         public string Country { get; set; } = string.Empty;
+
+        [StringLength(30)]
+        public string PaymentMethod { get; set; } = "COD";
+
+        [StringLength(50)]
+        public string? PaymentProvider { get; set; }
+
+        [StringLength(100)]
+        public string? PaymentTransactionId { get; set; }
+
+        [StringLength(100)]
+        public string? PaymentReference { get; set; }
+
+        public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Unpaid;
+
+        public DateTime? PaidAtUtc { get; set; }
 
         public DateTime CreatedAtUtc { get; set; }
         public DateTime? UpdatedAtUtc { get; set; }

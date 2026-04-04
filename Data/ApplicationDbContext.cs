@@ -30,6 +30,10 @@ namespace EcommerceApp.Data
                 .Property(oi => oi.UnitPrice)
                 .HasPrecision(18, 2);
 
+            builder.Entity<Product>()
+                .Property(p => p.AverageRating)
+                .HasPrecision(3, 2);
+
             builder.Entity<Order>()
                 .HasMany(o => o.Items)
                 .WithOne(i => i.Order)

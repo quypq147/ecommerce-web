@@ -40,11 +40,23 @@ namespace EcommerceApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var orders = await _context.Orders
+            var startMonthUtc = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1).AddMonths(-11);
+
+            var recentOrders = await _context.Orders
                 .AsNoTracking()
                 .Include(o => o.Items)
                 .OrderByDescending(o => o.CreatedAtUtc)
                 .Take(8)
+                .Select(o => new AdminOrderListItemViewModel
+                {
+                    Id = o.Id,
+                    CustomerEmail = o.CustomerEmail,
+                    RecipientName = o.RecipientName,
+                    CreatedAtUtc = o.CreatedAtUtc,
+                    Status = o.Status,
+                    ItemCount = o.Items.Sum(i => i.Quantity),
+                    TotalAmount = o.TotalAmount
+                })
                 .ToListAsync();
 
             var lowStockProducts = await _context.Products
@@ -55,24 +67,62 @@ namespace EcommerceApp.Controllers
                 .Take(5)
                 .ToListAsync();
 
-            var viewModel = new AdminOverviewViewModel
-            {
-                TotalRevenue = await _context.Orders.SumAsync(o => (decimal?)o.TotalAmount) ?? 0m,
-                TotalOrders = await _context.Orders.CountAsync(),
-                PendingOrders = await _context.Orders.CountAsync(o => o.Status == OrderStatus.Pending),
-                TotalProducts = await _context.Products.CountAsync(),
-                TotalCategories = await _context.Categories.CountAsync(),
-                RecentOrders = orders.Select(o => new AdminOrderListItemViewModel
+            var summary = await _context.Orders
+                .AsNoTracking()
+                .GroupBy(_ => 1)
+                .Select(g => new
                 {
-                    Id = o.Id,
-                    CustomerEmail = o.CustomerEmail,
-                    RecipientName = o.RecipientName,
-                    CreatedAtUtc = o.CreatedAtUtc,
-                    Status = o.Status,
-                    ItemCount = o.Items.Sum(i => i.Quantity),
-                    TotalAmount = o.TotalAmount
-                }).ToList(),
-                LowStockProducts = lowStockProducts
+                    TotalRevenue = g.Where(o => o.Status != OrderStatus.Cancelled)
+                        .Sum(o => (decimal?)o.TotalAmount) ?? 0m,
+                    TotalOrders = g.Count(),
+                    PendingOrders = g.Count(o => o.Status == OrderStatus.Pending)
+                })
+                .FirstOrDefaultAsync();
+
+            var totalProducts = await _context.Products.AsNoTracking().CountAsync();
+            var totalCategories = await _context.Categories.AsNoTracking().CountAsync();
+
+            var monthlyRevenue = await _context.Orders
+                .AsNoTracking()
+                .Where(o => o.CreatedAtUtc >= startMonthUtc && o.Status != OrderStatus.Cancelled)
+                .GroupBy(o => new { o.CreatedAtUtc.Year, o.CreatedAtUtc.Month })
+                .Select(g => new MonthlyRevenueViewModel
+                {
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    Revenue = g.Sum(x => x.TotalAmount)
+                })
+                .OrderBy(x => x.Year)
+                .ThenBy(x => x.Month)
+                .ToListAsync();
+
+            var topSellingProducts = await _context.OrderItems
+                .AsNoTracking()
+                .Where(oi => oi.Order.Status != OrderStatus.Cancelled)
+                .GroupBy(oi => new { oi.ProductId, oi.ProductName })
+                .Select(g => new TopSellingProductViewModel
+                {
+                    ProductId = g.Key.ProductId,
+                    ProductName = g.Key.ProductName,
+                    TotalQuantity = g.Sum(x => x.Quantity),
+                    TotalRevenue = g.Sum(x => x.UnitPrice * x.Quantity)
+                })
+                .OrderByDescending(x => x.TotalQuantity)
+                .ThenByDescending(x => x.TotalRevenue)
+                .Take(5)
+                .ToListAsync();
+
+            var viewModel = new AdminDashboardViewModel
+            {
+                TotalRevenue = summary?.TotalRevenue ?? 0m,
+                TotalOrders = summary?.TotalOrders ?? 0,
+                PendingOrders = summary?.PendingOrders ?? 0,
+                TotalProducts = totalProducts,
+                TotalCategories = totalCategories,
+                RecentOrders = recentOrders,
+                LowStockProducts = lowStockProducts,
+                MonthlyRevenue = monthlyRevenue,
+                TopSellingProducts = topSellingProducts
             };
 
             return View(viewModel);

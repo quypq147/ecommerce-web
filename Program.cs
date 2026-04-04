@@ -7,8 +7,17 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Configure Entity Framework Core (Assuming SQL Server, but you can use SQLite)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+if (builder.Environment.IsDevelopment() &&
+    !string.IsNullOrWhiteSpace(connectionString) &&
+    connectionString.Contains("Authentication=Active Directory", StringComparison.OrdinalIgnoreCase))
+{
+    connectionString = "Server=(localdb)\\mssqllocaldb;Database=EcommerceDb;Trusted_Connection=True;TrustServerCertificate=True;";
+}
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(connectionString));
 
 // 2. Configure ASP.NET Core Identity
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
@@ -16,6 +25,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
     options.SignIn.RequireConfirmedAccount = false; // Set to true if you want email confirmation
     options.Password.RequireDigit = true;
     options.Password.RequiredLength = 6;
+    options.User.RequireUniqueEmail = true;
 })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -31,8 +41,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
-builder.Services.AddSingleton<IProductCatalogService, InMemoryProductCatalogService>();
+builder.Services.AddScoped<IProductCatalogService, DbProductCatalogService>();
 builder.Services.AddScoped<ICartService, SessionCartService>();
+builder.Services.AddScoped<IPaymentGatewayService, DemoPaymentGatewayService>();
 
 var app = builder.Build();
 

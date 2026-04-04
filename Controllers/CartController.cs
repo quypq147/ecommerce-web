@@ -1,5 +1,6 @@
 using EcommerceApp.ViewModels;
 using EcommerceApp.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EcommerceApp.Controllers;
@@ -54,9 +55,10 @@ public class CartController : Controller
     }
 
     [HttpPost]
+    [Authorize]
     [ValidateAntiForgeryToken]
     public IActionResult Checkout()
     {
-        return RedirectToAction("Checkout", "Order");
+        return RedirectToAction("Index", "Checkout");
     }
 }

@@ -149,7 +149,7 @@ namespace EcommerceApp.Controllers
                 return View(model);
             }
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
+            var user = await GetUserByEmailSafeAsync(model.Email);
             if (user is null)
             {
                 TempData["StatusMessage"] = "Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.";
@@ -188,7 +188,7 @@ namespace EcommerceApp.Controllers
                 return View(model);
             }
 
-            var user = await _userManager.FindByEmailAsync(model.Email);
+            var user = await GetUserByEmailSafeAsync(model.Email);
             if (user is null)
             {
                 TempData["StatusMessage"] = "Đặt lại mật khẩu thành công.";
@@ -307,7 +307,9 @@ namespace EcommerceApp.Controllers
 
                 if (result.Succeeded)
                 {
-                    var user = await _userManager.FindByEmailAsync(model.Email);
+                    var user = await GetUserByEmailSafeAsync(model.Email)
+                               ?? await _userManager.FindByNameAsync(model.Email);
+
                     if (user is not null && await _userManager.IsInRoleAsync(user, AppRoles.Admin))
                     {
                         return RedirectToAction("Index", "Admin");
@@ -329,6 +331,26 @@ namespace EcommerceApp.Controllers
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Store");
+        }
+
+        private async Task<IdentityUser?> GetUserByEmailSafeAsync(string? email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return null;
+            }
+
+            var normalizedEmail = _userManager.NormalizeEmail(email);
+            if (string.IsNullOrWhiteSpace(normalizedEmail))
+            {
+                return null;
+            }
+
+            return await _context.Users
+                .AsNoTracking()
+                .Where(u => u.NormalizedEmail == normalizedEmail)
+                .OrderBy(u => u.Id)
+                .FirstOrDefaultAsync();
         }
 
         private IActionResult RedirectToLocal(string? returnUrl)
