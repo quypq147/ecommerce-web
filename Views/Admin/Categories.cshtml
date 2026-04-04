@@ -22,10 +22,6 @@
         <form action="/Admin/CreateCategory" class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-4" method="post">
             @Html.AntiForgeryToken()
             <input class="rounded-xl border border-outline-variant/50 px-4 py-3" name="Name" placeholder="Tên danh mục" type="text" value="@Model.NewCategory.Name" />
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
             <div id="new-icon-picker" class="relative">
                 <input id="new-category-icon" name="Icon" type="hidden" value="@(string.IsNullOrWhiteSpace(Model.NewCategory.Icon) ? "category" : Model.NewCategory.Icon)" />
                 <button id="new-icon-trigger" type="button" class="flex w-full items-center justify-between rounded-xl border border-outline-variant/50 px-4 py-3 text-left">
@@ -45,14 +41,8 @@
                     }
                 </div>
             </div>
-<<<<<<< Updated upstream
-
-            <input class="rounded-xl border border-outline-variant/50 px-4 py-3" name="Description" placeholder="Mô tả" type="text" value="@Model.NewCategory.Description" />
-            <button class="rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white" type="submit">Tạo danh mục</button>
-=======
             <input class="rounded-xl border border-outline-variant/50 px-4 py-3" name="Description" placeholder="Mô tả" type="text" value="@Model.NewCategory.Description" />
             <button class="rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white md:col-span-1" type="submit">Tạo danh mục</button>
->>>>>>> Stashed changes
         </form>
     </div>
 

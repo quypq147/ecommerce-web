@@ -72,19 +72,11 @@
                         : $"{category.Icon} • {category.Name}";
                     if (category.Id == Model.CategoryId)
                     {
-<<<<<<< Updated upstream
-                        <option selected="selected" value="@category.Id">@categoryLabel</option>
-                    }
-                    else
-                    {
-                        <option value="@category.Id">@categoryLabel</option>
-=======
                         <option selected="selected" data-icon="@category.Icon" value="@category.Id">@categoryLabel</option>
                     }
                     else
                     {
                         <option data-icon="@category.Icon" value="@category.Id">@categoryLabel</option>
->>>>>>> Stashed changes
                     }
                 }
             </select>
