@@ -46,9 +46,9 @@ jobs:
     - name: Azure Login
       uses: azure/login@v2
       with:
-        client-id: ${{ vars.Quypq147EcommerceWebApp_CLIENT_ID_4DE0 }}
-        tenant-id: ${{ vars.Quypq147EcommerceWebApp_TENANT_ID_4DE0 }}
-        subscription-id: ${{ vars.Quypq147EcommerceWebApp_SUBSCRIPTION_ID_4DE0 }}
+        client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_36DDD7DDDCCB4861A93440676E51BD31 }}
+        tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_9D21C3B8B5AB44C1AB9A1C80AD2D2714 }}
+        subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_2BA5A6775D364435B0246CD478CB7284 }}
     - name: Deploy to Azure WebApp
       uses: azure/webapps-deploy@v2
       with:
