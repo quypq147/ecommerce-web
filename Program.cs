@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using EcommerceApp.Data;
 using EcommerceApp.Services;
 using Microsoft.AspNetCore.Identity;
@@ -9,11 +10,22 @@ var builder = WebApplication.CreateBuilder(args);
 // 1. Configure Entity Framework Core (Assuming SQL Server, but you can use SQLite)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-if (builder.Environment.IsDevelopment() &&
-    !string.IsNullOrWhiteSpace(connectionString) &&
-    connectionString.Contains("Authentication=Active Directory", StringComparison.OrdinalIgnoreCase))
+if (!string.IsNullOrWhiteSpace(connectionString))
 {
-    connectionString = "Server=(localdb)\\mssqllocaldb;Database=EcommerceDb;Trusted_Connection=True;TrustServerCertificate=True;";
+    if (builder.Environment.IsDevelopment() &&
+        RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+        connectionString.Contains("Authentication=Active Directory", StringComparison.OrdinalIgnoreCase))
+    {
+        connectionString = "Server=(localdb)\\mssqllocaldb;Database=EcommerceDb;Trusted_Connection=True;TrustServerCertificate=True;";
+    }
+    else if (connectionString.Contains("Authentication=", StringComparison.OrdinalIgnoreCase))
+    {
+        connectionString = connectionString
+            .Replace("Trusted_Connection=True;", "", StringComparison.OrdinalIgnoreCase)
+            .Replace("Trusted_Connection=True", "", StringComparison.OrdinalIgnoreCase)
+            .Replace("Integrated Security=True;", "", StringComparison.OrdinalIgnoreCase)
+            .Replace("Integrated Security=True", "", StringComparison.OrdinalIgnoreCase);
+    }
 }
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
