@@ -1,35 +1,29 @@
-using System.Runtime.InteropServices;
 using EcommerceApp.Data;
 using EcommerceApp.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.InteropServices;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Configure Entity Framework Core (Assuming SQL Server, but you can use SQLite)
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-if (!string.IsNullOrWhiteSpace(connectionString))
+var connection = builder.Configuration.GetConnectionString("AZURE_SQL_CONNECTIONSTRING");
+
+if (string.IsNullOrWhiteSpace(connection))
 {
-    if (builder.Environment.IsDevelopment() &&
-        RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
-        connectionString.Contains("Authentication=Active Directory", StringComparison.OrdinalIgnoreCase))
-    {
-        connectionString = "Server=(localdb)\\mssqllocaldb;Database=EcommerceDb;Trusted_Connection=True;TrustServerCertificate=True;";
-    }
-    else if (connectionString.Contains("Authentication=", StringComparison.OrdinalIgnoreCase))
-    {
-        connectionString = connectionString
-            .Replace("Trusted_Connection=True;", "", StringComparison.OrdinalIgnoreCase)
-            .Replace("Trusted_Connection=True", "", StringComparison.OrdinalIgnoreCase)
-            .Replace("Integrated Security=True;", "", StringComparison.OrdinalIgnoreCase)
-            .Replace("Integrated Security=True", "", StringComparison.OrdinalIgnoreCase);
-    }
+    connection = Environment.GetEnvironmentVariable("AZURE_SQL_CONNECTIONSTRING");
+}
+
+if (string.IsNullOrWhiteSpace(connection))
+{
+    throw new InvalidOperationException(
+        "Database connection string 'AZURE_SQL_CONNECTIONSTRING' is not configured. Set it using user-secrets or environment variables.");
 }
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connection));
 
 // 2. Configure ASP.NET Core Identity
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
@@ -60,14 +54,31 @@ builder.Services.AddScoped<IPaymentGatewayService, DemoPaymentGatewayService>();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
+const string skipAutoMigrateEnvVar = "SKIP_AUTO_MIGRATE_IN_PRODUCTION";
+var skipAutoMigrateInProduction =
+    app.Environment.IsProduction() &&
+    bool.TryParse(Environment.GetEnvironmentVariable(skipAutoMigrateEnvVar), out var skipMigration) &&
+    skipMigration;
+
+try
 {
+    using var scope = app.Services.CreateScope();
     var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
     var dbContext = services.GetRequiredService<ApplicationDbContext>();
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
 
-    await dbContext.Database.MigrateAsync();
+    if (skipAutoMigrateInProduction)
+    {
+        logger.LogWarning("Skipping automatic database migration because environment variable '{EnvVar}' is enabled in Production.", skipAutoMigrateEnvVar);
+    }
+    else
+    {
+        logger.LogInformation("Applying database migrations at startup.");
+        await dbContext.Database.MigrateAsync();
+        logger.LogInformation("Database migrations applied successfully.");
+    }
 
     var roles = new[] { AppRoles.Buyer, AppRoles.Admin, AppRoles.Staff };
     foreach (var role in roles)
@@ -101,6 +112,11 @@ using (var scope = app.Services.CreateScope())
     {
         await userManager.AddToRoleAsync(adminUser, AppRoles.Admin);
     }
+}
+catch (Exception ex)
+{
+    app.Logger.LogCritical(ex, "Application startup initialization failed. Check database connection, permissions, and migration state. Set '{EnvVar}=true' in Production to skip automatic migration.", skipAutoMigrateEnvVar);
+    throw;
 }
 
 // Configure the HTTP request pipeline.
