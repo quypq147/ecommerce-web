@@ -73,7 +73,7 @@ public class StoreController : Controller
             _ => query.OrderByDescending(p => p.Id)
         };
 
-        const int pageSize = 3;
+        const int pageSize = 6;
         var filteredProducts = query.ToList();
         var totalItems = filteredProducts.Count;
         var totalPages = Math.Max(1, (int)Math.Ceiling(totalItems / (double)pageSize));

@@ -43,6 +43,7 @@ builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
 builder.Services.AddScoped<IProductCatalogService, DbProductCatalogService>();
 builder.Services.AddScoped<ICartService, SessionCartService>();
+builder.Services.AddScoped<IWishlistService, SessionWishlistService>();
 builder.Services.AddScoped<IPaymentGatewayService, DemoPaymentGatewayService>();
 
 var app = builder.Build();

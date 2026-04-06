@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@inject EcommerceApp.Services.IWishlistService WishlistService
+@inject EcommerceApp.Services.ICartService CartService
+<!DOCTYPE html>
 
 <html class="light" lang="vi">
 <head>
@@ -92,16 +94,32 @@
             <a asp-controller="Store" asp-action="Index" class="text-2xl font-black tracking-tighter text-orange-600">TechCurator</a>
             <div class="hidden md:flex space-x-8">
                 <a asp-controller="Store" asp-action="Index" class="text-orange-600 font-bold border-b-2 border-orange-600 text-sm tracking-wide">Sản phẩm</a>
+                <a asp-controller="Wishlist" asp-action="Index" class="text-slate-600 font-medium hover:text-orange-500 transition-colors duration-200 text-sm tracking-wide">Yêu thích</a>
                 <a asp-controller="Cart" asp-action="Index" class="text-slate-600 font-medium hover:text-orange-500 transition-colors duration-200 text-sm tracking-wide">Giỏ Hàng</a>
                 <a asp-controller="Home" asp-action="Privacy" class="text-slate-600 font-medium hover:text-orange-500 transition-colors duration-200 text-sm tracking-wide">Bảo Mật</a>
             </div>
+            @{ 
+                var wishlistCount = WishlistService.GetItems().Count;
+                var cartCount = CartService.GetItems().Count;
+            }
             <div class="flex items-center space-x-6">
                 <div class="relative hidden lg:block">
                     <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
                     <input class="pl-10 pr-4 py-1.5 bg-surface-container-low border-none rounded-full text-sm w-64 focus:ring-2 focus:ring-primary-container focus:bg-white transition-all" placeholder="Tìm kiếm linh kiện..." type="text" />
                 </div>
-                <a asp-controller="Cart" asp-action="Index" class="text-slate-600 hover:text-orange-500 scale-95 active:scale-90 transition-transform">
+                <a asp-controller="Wishlist" asp-action="Index" class="relative inline-flex items-center justify-center text-slate-600 hover:text-orange-500 scale-95 active:scale-90 transition-transform @(wishlistCount > 0 ? "text-orange-500" : "")" title="Wishlist">
+                    <span class="material-symbols-outlined">@(wishlistCount > 0 ? "favorite" : "favorite_border")</span>
+                    @if (wishlistCount > 0)
+                    {
+                        <span class="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-orange-500 px-1 text-[10px] font-bold leading-none text-white">@wishlistCount</span>
+                    }
+                </a>
+                <a asp-controller="Cart" asp-action="Index" class="relative inline-flex items-center justify-center text-slate-600 hover:text-orange-500 scale-95 active:scale-90 transition-transform @(cartCount > 0 ? "text-orange-500" : "")" title="Cart">
                     <span class="material-symbols-outlined">shopping_cart</span>
+                    @if (cartCount > 0)
+                    {
+                        <span class="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-orange-500 px-1 text-[10px] font-bold leading-none text-white">@cartCount</span>
+                    }
                 </a>
                 @if (User.Identity?.IsAuthenticated == true)
                 {

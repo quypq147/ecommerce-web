@@ -1,6 +1,7 @@
 @model EcommerceApp.Models.Product
 @{
     ViewData["Title"] = Model.Name;
+    var currentUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
 }
 
 <div class="w-full">
@@ -15,11 +16,22 @@
             <div class="mt-6 text-2xl font-bold text-slate-900">@Model.Price.ToString("C")</div>
             <div class="mt-2 text-sm text-slate-500">Còn hàng: @Model.StockQuantity</div>
 
-            <form asp-action="AddToCart" asp-route-id="@Model.Id" method="post" class="mt-6 flex gap-2">
+            <form asp-action="AddToCart" asp-route-id="@Model.Id" method="post" class="mt-6 flex flex-wrap gap-2">
                 @Html.AntiForgeryToken()
+                <input type="hidden" name="returnUrl" value="@currentUrl" />
                 <button type="submit" class="rounded-lg bg-orange-600 px-4 py-2 font-semibold text-white">Thêm vào giỏ</button>
-                <a asp-action="Reviews" asp-route-id="@Model.Id" class="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white no-underline hover:no-underline">Viết đánh giá</a>
             </form>
+
+            <form asp-controller="Wishlist" asp-action="Add" method="post" class="mt-3">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="productId" value="@Model.Id" />
+                <input type="hidden" name="returnUrl" value="@currentUrl" />
+                <button type="submit" class="rounded-lg border border-slate-300 px-4 py-2 font-semibold text-slate-700">Yêu thích</button>
+            </form>
+
+            <div class="mt-3">
+                <a asp-action="Reviews" asp-route-id="@Model.Id" class="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white no-underline hover:no-underline">Viết đánh giá</a>
+            </div>
 
             @if (TempData["ReviewMessage"] != null)
             {

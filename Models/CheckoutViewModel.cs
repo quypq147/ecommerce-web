@@ -52,13 +52,13 @@ public class CheckoutViewModel : IValidatableObject
 				yield return new ValidationResult("Vui lòng nhập tên chủ thẻ.", [nameof(FullName)]);
 
 			if (string.IsNullOrWhiteSpace(CardNumber) || !System.Text.RegularExpressions.Regex.IsMatch(CardNumber.Replace(" ", ""), @"^\d{16}$"))
-				yield return new ValidationResult("Số thẻ phải gồm 16 chữ số.", [nameof(CardNumber)]);
+				yield return new ValidationResult("Số thẻ không hợp lệ. Vui lòng nhập đủ 16 chữ số.", [nameof(CardNumber)]);
 
 			if (string.IsNullOrWhiteSpace(ExpiryDate) || !System.Text.RegularExpressions.Regex.IsMatch(ExpiryDate, @"^(0[1-9]|1[0-2])\/\d{2}$"))
-				yield return new ValidationResult("Ngày hết hạn phải có định dạng MM/YY.", [nameof(ExpiryDate)]);
+				yield return new ValidationResult("Sai ngày hết hạn thẻ. Định dạng đúng là MM/YY.", [nameof(ExpiryDate)]);
 
 			if (string.IsNullOrWhiteSpace(CVV) || !System.Text.RegularExpressions.Regex.IsMatch(CVV, @"^\d{3,4}$"))
-				yield return new ValidationResult("CVV phải gồm 3 hoặc 4 chữ số.", [nameof(CVV)]);
+				yield return new ValidationResult("Sai CVV/CVC. Vui lòng nhập 3 hoặc 4 chữ số.", [nameof(CVV)]);
 		}
 	}
 }
