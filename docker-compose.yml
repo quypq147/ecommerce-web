@@ -1,6 +1,7 @@
 services:
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    pull_policy: always
     container_name: ecommerce-db
     environment:
       ACCEPT_EULA: "Y"
@@ -17,6 +18,18 @@ services:
       retries: 10
       start_period: 20s
 
+  db-init:
+    image: mcr.microsoft.com/mssql-tools18
+    pull_policy: always
+    container_name: ecommerce-db-init
+    depends_on:
+      db:
+        condition: service_healthy
+    command: /bin/bash -c "/opt/mssql-tools18/bin/sqlcmd -S db,1433 -U sa -P $$SA_PASSWORD -C -Q \"IF DB_ID(N'EcommerceDb') IS NULL CREATE DATABASE [EcommerceDb];\""
+    environment:
+      SA_PASSWORD: "YourStrong@Passw0rd"
+    restart: "no"
+
   web:
     build:
       context: .
@@ -29,6 +42,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
     ports:
       - "8080:8080"
 
