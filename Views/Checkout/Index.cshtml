@@ -69,18 +69,18 @@
                         </div>
                         <div>
                             <label asp-for="CardNumber" class="mb-2 block text-xs font-bold uppercase tracking-widest text-slate-500">Số thẻ</label>
-                            <input asp-for="CardNumber" class="h-12 w-full rounded-lg border-none bg-surface-container-lowest px-4 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20" placeholder="0000 0000 0000 0000" />
+                            <input asp-for="CardNumber" inputmode="numeric" autocomplete="cc-number" maxlength="19" class="h-12 w-full rounded-lg border-none bg-surface-container-lowest px-4 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20" placeholder="0000 0000 0000 0000" />
                             <span asp-validation-for="CardNumber" class="text-xs text-red-500"></span>
                         </div>
                         <div class="grid gap-4 md:grid-cols-2">
                             <div>
                                 <label asp-for="ExpiryDate" class="mb-2 block text-xs font-bold uppercase tracking-widest text-slate-500">Ngày hết hạn</label>
-                                <input asp-for="ExpiryDate" class="h-12 w-full rounded-lg border-none bg-surface-container-lowest px-4 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20" placeholder="MM / YY" />
+                                <input asp-for="ExpiryDate" inputmode="numeric" autocomplete="cc-exp" maxlength="5" class="h-12 w-full rounded-lg border-none bg-surface-container-lowest px-4 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20" placeholder="MM / YY" />
                                 <span asp-validation-for="ExpiryDate" class="text-xs text-red-500"></span>
                             </div>
                             <div>
                                 <label asp-for="CVV" class="mb-2 block text-xs font-bold uppercase tracking-widest text-slate-500">CVV / CVC</label>
-                                <input asp-for="CVV" class="h-12 w-full rounded-lg border-none bg-surface-container-lowest px-4 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20" placeholder="***" />
+                                <input asp-for="CVV" inputmode="numeric" autocomplete="cc-csc" maxlength="4" class="h-12 w-full rounded-lg border-none bg-surface-container-lowest px-4 placeholder:text-slate-400 focus:ring-2 focus:ring-primary/20" placeholder="***" />
                                 <span asp-validation-for="CVV" class="text-xs text-red-500"></span>
                             </div>
                         </div>
@@ -200,6 +200,19 @@
     const expiryDate = document.getElementById('ExpiryDate');
     const cvv = document.getElementById('CVV');
 
+    function formatCardNumber(value) {
+        return value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
+    }
+
+    function formatExpiryDate(value) {
+        const digits = value.replace(/\D/g, '').slice(0, 4);
+        if (digits.length <= 2) {
+            return digits;
+        }
+
+        return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    }
+
     function cardValid() {
         const number = (cardNumber?.value || '').replace(/\s+/g, '');
         const expiry = (expiryDate?.value || '').trim();
@@ -233,23 +246,41 @@
 
         if (method === 'COD') {
             cardSection.classList.add('hidden');
-            goAddressBtn.classList.remove('hidden');
+            addressSection.classList.remove('hidden');
+            goAddressBtn.classList.add('hidden');
             return;
         }
 
         cardSection.classList.remove('hidden');
-        if (cardValid()) {
-            goAddressBtn.classList.remove('hidden');
-        } else {
-            goAddressBtn.classList.add('hidden');
-        }
+        addressSection.classList.add('hidden');
+        goAddressBtn.classList.toggle('hidden', !cardValid());
     }
 
     methodRadios.forEach(radio => {
         radio.addEventListener('change', updatePaymentFlow);
     });
 
-    [fullName, cardNumber, expiryDate, cvv].forEach(input => {
+    if (cardNumber) {
+        cardNumber.addEventListener('input', () => {
+            const formatted = formatCardNumber(cardNumber.value);
+            if (cardNumber.value !== formatted) {
+                cardNumber.value = formatted;
+            }
+            updatePaymentFlow();
+        });
+    }
+
+    if (expiryDate) {
+        expiryDate.addEventListener('input', () => {
+            const formatted = formatExpiryDate(expiryDate.value);
+            if (expiryDate.value !== formatted) {
+                expiryDate.value = formatted;
+            }
+            updatePaymentFlow();
+        });
+    }
+
+    [fullName, cvv].forEach(input => {
         if (input) {
             input.addEventListener('input', updatePaymentFlow);
         }
